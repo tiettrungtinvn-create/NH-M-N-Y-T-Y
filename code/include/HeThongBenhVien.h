@@ -9,7 +9,7 @@ struct BenhNhan {
     string phongKham;
     int doUuTien;
     int soThuTu;
-}
+};
 class HeThongBenhVien {
 private:
     BenhNhan* danhSach;
