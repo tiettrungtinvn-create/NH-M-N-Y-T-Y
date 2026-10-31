@@ -1,15 +1,3 @@
-// ============================================================================
-// PHẦN 6/10 - HeThong_TiepNhan.cpp : KHỞI TẠO, TÌM/TẠO PHÒNG, TIẾP NHẬN VÀ PHÂN LUỒNG
-// ----------------------------------------------------------------------------
-// Nhiệm vụ (các hàm của lớp HeThongBenhVien):
-//   - Hàm tạo HeThongBenhVien(sc): đặt sức chứa (mặc định MAX_HANG_DOI), các bộ đếm = 0.
-//   - timPhong / taoPhong : tìm phòng theo tên; chưa có thì tạo mới (tối đa SO_PHONG_TOI_DA).
-//   - timBenhNhan         : tìm bệnh nhân theo mã trong mọi hàng, trả về phòng và loại hàng.
-//   - tiepNhanVaPhanLuong : kiểm tra dữ liệu, chống trùng mã, cấp số thứ tự tự động,
-//                           doUuTien == 1 -> hangThuong, còn lại -> hangCapCuu.
-// Kiểm thử: mã trùng, tên rỗng, độ ưu tiên ngoài 1..5, hệ thống đầy.
-// Phụ thuộc: HeThongBenhVien.h
-// ============================================================================
 #include "HeThongBenhVien.h"
 
 HeThongBenhVien::HeThongBenhVien(int sc) {
