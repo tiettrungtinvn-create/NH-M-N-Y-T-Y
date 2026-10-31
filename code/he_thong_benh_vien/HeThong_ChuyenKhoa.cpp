@@ -1,14 +1,3 @@
-// ============================================================================
-// PHẦN 7/10 - HeThong_ChuyenKhoa.cpp : CHUYỂN KHOA CẤP CỨU ƯU TIÊN
-// ----------------------------------------------------------------------------
-// Nhiệm vụ: cài chuyenKhoaCapCuuUuTien(maBN)
-//   - Tìm bệnh nhân; nếu đã ở "Khoa Cap Cuu" với độ ưu tiên 999 thì coi như xong.
-//   - Tạo (nếu chưa có) phòng "Khoa Cap Cuu", kiểm tra còn chỗ rồi gỡ bệnh nhân khỏi
-//     hàng cũ (layTheoMa), đổi phòng và độ ưu tiên thành 999, thêm vào hangCapCuu.
-//   - In thông báo khẩn. Số lượng bệnh nhân trong hệ thống không đổi.
-// Kiểm thử: chuyển người ở hàng thường / hàng ưu tiên; chuyển hai lần; mã không tồn tại.
-// Phụ thuộc: HeThongBenhVien.h
-// ============================================================================
 #include "HeThongBenhVien.h"
 
 bool HeThongBenhVien::chuyenKhoaCapCuuUuTien(int maBN) {
