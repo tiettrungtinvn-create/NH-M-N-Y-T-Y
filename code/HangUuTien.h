@@ -31,7 +31,7 @@ public:
 	bool them(const BenhNhan& bn) {
 		if (dem == MAX_HANG_DOI) return false;
 		Nut* p = new Nut(bn);
-		if (dau == NULL || dau->du < bn) {   // bn Æ°u tiÃªn hÆ¡n Ä‘áº§u hÃ ng -> chÃ¨n Ä‘áº§u
+		if (dau == NULL || dau->du < bn) {   
 			p->tiep = dau;
 			dau = p;
 		} else {
