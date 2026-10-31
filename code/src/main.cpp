@@ -25,11 +25,11 @@ void chayDemo() {
 	ht.hienThiBangDienTu();
 
 	cout << "\n-- Uoc tinh thoi gian cho --\n";
-	ht.uocTinhThoiGianCho(104);   // dau hang uu tien phong Noi
-	ht.uocTinhThoiGianCho(102);   // sau 104
-	ht.uocTinhThoiGianCho(101);   // sau 2 BN uu tien
-	ht.uocTinhThoiGianCho(106);   // cuoi hang thuong
-	ht.uocTinhThoiGianCho(999);   // khong ton tai
+	ht.uocTinhThoiGianCho(104);   
+	ht.uocTinhThoiGianCho(102);   
+	ht.uocTinhThoiGianCho(101);   
+	ht.uocTinhThoiGianCho(106);   
+	ht.uocTinhThoiGianCho(999);   
 
 	cout << "\n-- Chuyen khoa cap cuu uu tien --\n";
 	kq("Chuyen BN 103 (Ngoai)",     ht.chuyenKhoaCapCuuUuTien(103));
