@@ -1,16 +1,3 @@
-// ============================================================================
-// PHẦN 8/10 - HeThong_GoiSo.cpp : GỌI SỐ TỰ ĐỘNG + LỊCH SỬ GỌI
-// ----------------------------------------------------------------------------
-// Nhiệm vụ:
-//   - goiSoTuDong(tenPhong):
-//        + Có tên phòng: gọi bệnh nhân ưu tiên của phòng đó, hết ưu tiên thì gọi hàng thường.
-//        + Không tên    : chọn bệnh nhân ưu tiên cao nhất toàn hệ thống (so bằng operator<);
-//                         nếu không có ai ưu tiên thì chọn người có số thứ tự nhỏ nhất.
-//     Sau khi gọi: giảm soLuong, ghi vào lichSuGoi (đầy thì bỏ bản ghi cũ nhất), in loa.
-//   - hienThiLichSuGoi(): in các lượt gọi theo thứ tự thời gian.
-// Kiểm thử: gọi khi hệ thống rỗng, phòng không tồn tại, phòng hết người.
-// Phụ thuộc: HeThongBenhVien.h
-// ============================================================================
 #include "HeThongBenhVien.h"
 
 bool HeThongBenhVien::goiSoTuDong(string tenPhong) {
