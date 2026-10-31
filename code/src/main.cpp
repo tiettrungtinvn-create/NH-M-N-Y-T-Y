@@ -3,7 +3,9 @@
 #include "HeThongBenhVien.h"
 
 static void kq(const string& viec, bool ok) {
-	cout << "  -> " << viec << ": " << (ok ? "THANH CONG" : "THAT BAI") << "\n";
+	cout << "  -> " << viec << ": ";
+	if (ok) cout << "THANH CONG\n";
+	else cout << "THAT BAI\n";
 }
 
 void chayDemo() {

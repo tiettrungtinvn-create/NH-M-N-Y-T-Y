@@ -1,6 +1,6 @@
 #include "HeThongBenhVien.h"
 
-int HeThongBenhVien::thoiGianChoDuKien(int maBN) {
+int HeThongBenhVien::thoiGianChoDuKien(int maBN) const {
     BenhNhan bn, dangXet;
     int viTri;
     bool capCuu;

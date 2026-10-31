@@ -35,6 +35,8 @@
 
 # Executables
 *.exe
+hospital-data.txt
+hospital-data.txt.tmp
 *.out
 *.app
 
