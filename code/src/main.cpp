@@ -1,13 +1,3 @@
-// ============================================================================
-// PHẦN 10/10 - main.cpp : MENU, KỊCH BẢN DEMO VÀ KIỂM THỬ
-// ----------------------------------------------------------------------------
-// Nhiệm vụ:
-//   - readInt(), readLine(): nhập liệu có kiểm tra hợp lệ.
-//   - chayDemo(): kịch bản mẫu (tiếp nhận -> bảng điện tử -> ước tính chờ -> chuyển
-//     khoa cấp cứu -> gọi số toàn hệ thống / theo phòng -> lịch sử -> các ca lỗi).
-//   - main(): menu 9 chức năng; chạy với tham số --demo để chạy kịch bản mẫu.
-// Phụ thuộc: HeThongBenhVien.h (và các header phía dưới nó).
-// ============================================================================
 #include <limits>
 #include <cstdlib>
 #include "HeThongBenhVien.h"
