@@ -5,9 +5,9 @@
 #include <string>
 using namespace std;
 
-const int MAX_HANG_DOI = 100;      // sá»©c chá»©a tá»‘i Ä‘a cá»§a má»—i hÃ ng Ä‘á»£i
-const int SO_PHONG_TOI_DA = 10;    // sá»‘ phÃ²ng khÃ¡m tá»‘i Ä‘a
-const int PHUT_MOI_LUOT = 10;      // thá»i gian khÃ¡m trung bÃ¬nh má»—i lÆ°á»£t (phÃºt)
+const int MAX_HANG_DOI = 100;      
+const int SO_PHONG_TOI_DA = 10;    
+const int PHUT_MOI_LUOT = 10;      
 
 struct BenhNhan {
 	int maBenhNhan;
