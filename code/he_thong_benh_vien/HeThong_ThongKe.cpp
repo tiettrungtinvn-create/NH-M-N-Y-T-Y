@@ -1,15 +1,3 @@
-// ============================================================================
-// PHẦN 9/10 - HeThong_ThongKe.cpp : THỜI GIAN CHỜ DỰ KIẾN, BẢNG ĐIỆN TỬ, THỐNG KÊ
-// ----------------------------------------------------------------------------
-// Nhiệm vụ:
-//   - thoiGianChoDuKien(maBN): số người đứng trước * PHUT_MOI_LUOT. Bệnh nhân thường
-//     phải chờ cả hàng ưu tiên của phòng; bệnh nhân ưu tiên chỉ chờ người ưu tiên trước mình.
-//   - uocTinhThoiGianCho(maBN): in kết quả tra cứu hoặc báo không tìm thấy.
-//   - hienThiBangDienTu(): in từng phòng, ưu tiên trước rồi đến hàng thường.
-//   - thongKePhongKham(tenPhong): đếm số bệnh nhân đang xếp hàng của phòng.
-//   - laRong() / kichThuoc(): trạng thái chung của hệ thống.
-// Phụ thuộc: HeThongBenhVien.h
-// ============================================================================
 #include "HeThongBenhVien.h"
 
 int HeThongBenhVien::thoiGianChoDuKien(int maBN) {
