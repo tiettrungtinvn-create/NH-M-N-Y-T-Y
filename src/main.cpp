@@ -1,118 +1,122 @@
-#include "hospital_system.hpp"
-
-#include <iostream>
 #include <limits>
-#include <string>
+#include <cstdlib>
+#include "HeThongBenhVien.h"
 
-namespace {
-int readInt(const std::string& prompt, int minimum, int maximum) {
-    for (;;) {
-        std::cout << prompt;
-        int value;
-        if (std::cin >> value && value >= minimum && value <= maximum) {
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            return value;
-        }
-        std::cout << "Gia tri khong hop le. Vui long nhap lai.\n";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
+static void kq(const string& viec, bool ok) {
+	cout << "  -> " << viec << ": " << (ok ? "THANH CONG" : "THAT BAI") << "\n";
 }
 
-std::string readLine(const std::string& prompt) {
-    std::cout << prompt;
-    std::string value;
-    std::getline(std::cin, value);
-    return value;
+void chayDemo() {
+	HeThongBenhVien ht(50);
+	cout << "### KICH BAN DEMO ###\n\n-- Tiep nhan va phan luong --\n";
+	kq("BN 101 (thuong, Noi)",      ht.tiepNhanVaPhanLuong(101, "Nguyen Van A", "Noi", 1));
+	kq("BN 102 (uu tien 3, Noi)",   ht.tiepNhanVaPhanLuong(102, "Tran Thi B",   "Noi", 3));
+	kq("BN 103 (thuong, Ngoai)",    ht.tiepNhanVaPhanLuong(103, "Le Van C",     "Ngoai", 1));
+	kq("BN 104 (uu tien 5, Noi)",   ht.tiepNhanVaPhanLuong(104, "Pham Thi D",   "Noi", 5));
+	kq("BN 105 (uu tien 2, Nhi)",   ht.tiepNhanVaPhanLuong(105, "Hoang Van E",  "Nhi", 2));
+	kq("BN 106 (thuong, Noi)",      ht.tiepNhanVaPhanLuong(106, "Do Thi G",     "Noi", 1));
+
+	cout << "\n-- Cac truong hop loi --\n";
+	kq("Trung ma 101",              ht.tiepNhanVaPhanLuong(101, "Trung Ma",     "Noi", 1));
+	kq("Do uu tien 9 khong hop le", ht.tiepNhanVaPhanLuong(107, "Sai Muc",      "Noi", 9));
+	kq("Ten rong",                  ht.tiepNhanVaPhanLuong(108, "",             "Noi", 1));
+
+	cout << "\n";
+	ht.hienThiBangDienTu();
+
+	cout << "\n-- Uoc tinh thoi gian cho --\n";
+	ht.uocTinhThoiGianCho(104);   // dau hang uu tien phong Noi
+	ht.uocTinhThoiGianCho(102);   // sau 104
+	ht.uocTinhThoiGianCho(101);   // sau 2 BN uu tien
+	ht.uocTinhThoiGianCho(106);   // cuoi hang thuong
+	ht.uocTinhThoiGianCho(999);   // khong ton tai
+
+	cout << "\n-- Chuyen khoa cap cuu uu tien --\n";
+	kq("Chuyen BN 103 (Ngoai)",     ht.chuyenKhoaCapCuuUuTien(103));
+	kq("Chuyen BN 103 lan nua",     ht.chuyenKhoaCapCuuUuTien(103));
+	kq("Chuyen BN 999 (khong co)",  ht.chuyenKhoaCapCuuUuTien(999));
+	ht.thongKePhongKham("Khoa Cap Cuu");
+	ht.thongKePhongKham("Ngoai");
+
+	cout << "\n-- Goi so tu dong toan he thong (3 luot) --\n";
+	for (int i = 0; i < 3; i++) ht.goiSoTuDong();
+
+	cout << "\n-- Goi so rieng phong Nhi --\n";
+	ht.goiSoTuDong("Nhi");
+	kq("Goi phong Nhi khi da het BN", ht.goiSoTuDong("Nhi"));
+	kq("Goi phong khong ton tai",     ht.goiSoTuDong("Mat"));
+
+	cout << "\n";
+	ht.hienThiBangDienTu();
+	cout << "\n";
+	ht.hienThiLichSuGoi();
+	cout << "\nCon lai trong he thong: " << ht.kichThuoc() << " BN\n";
 }
 
-void printPatient(const Patient& patient, const HospitalSystem& system, bool includeWait = false) {
-    std::cout << patient.ticket << " | " << patient.name << " | " << patient.age << " tuoi | "
-              << patient.department << " | uu tien " << patient.triageLevel << " | "
-              << HospitalSystem::statusText(patient.status);
-    if (patient.emergency) std::cout << " | CAP CUU";
-    if (includeWait) {
-        const auto wait = system.estimatedWaitMinutes(patient.ticket);
-        if (wait) std::cout << " | cho uoc tinh " << *wait << " phut";
-    }
-    std::cout << '\n';
+static int readInt(const string& prompt, int lo, int hi) {
+	int v;
+	while (true) {
+		cout << prompt;
+		if (cin >> v && v >= lo && v <= hi) {
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			return v;
+		}
+		if (cin.eof()) exit(0);
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout << "  Gia tri khong hop le (" << lo << ".." << hi << ").\n";
+	}
 }
 
-void printMenu() {
-    std::cout << "\n========== HE THONG XEP HANG KHAM BENH =========="
-              << "\n1. Tiep nhan benh nhan"
-              << "\n2. Goi benh nhan tiep theo"
-              << "\n3. Hoan tat luot kham"
-              << "\n4. Chuyen benh nhan dang cho sang cap cuu"
-              << "\n5. Xem danh sach dang cho"
-              << "\n6. Tra cuu benh nhan / thoi gian cho"
-              << "\n7. Xem lich su goi kham"
-              << "\n8. Xem tat ca benh nhan"
-              << "\n0. Thoat"
-              << "\n==================================================\n";
-}
+static string readLine(const string& prompt) {
+	string s;
+	cout << prompt;
+	getline(cin, s);
+	if (cin.eof()) exit(0);
+	return s;
 }
 
-int main() {
-    HospitalSystem system;
-    std::cout << "HE THONG XEP HANG KHAM BENH & CAP CUU\n"
-              << "Muc do 1 la nguy kich nhat; muc 5 la thong thuong.\n";
-
-    for (;;) {
-        printMenu();
-        const int choice = readInt("Chon chuc nang: ", 0, 8);
-        try {
-            if (choice == 0) break;
-            if (choice == 1) {
-                auto name = readLine("Ho ten: ");
-                const int age = readInt("Tuoi (0-120): ", 0, 120);
-                auto symptom = readLine("Trieu chung: ");
-                const int triage = readInt("Muc uu tien (1 nguy kich - 5 thong thuong): ", 1, 5);
-                std::cout << "Chon khoa (0 tu dong):\n";
-                for (std::size_t i = 0; i < system.departments().size(); ++i)
-                    std::cout << i + 1 << ". " << system.departments()[i] << '\n';
-                const int departmentChoice = readInt("Khoa: ", 0, static_cast<int>(system.departments().size()));
-                std::string department;
-                if (departmentChoice > 0) department = system.departments()[static_cast<std::size_t>(departmentChoice - 1)];
-                const auto patient = system.registerPatient(name, age, symptom, triage, department);
-                std::cout << "Da tiep nhan: ";
-                printPatient(patient, system, true);
-            } else if (choice == 2) {
-                const auto patient = system.callNextPatient();
-                if (patient) std::cout << "Moi benh nhan " << patient->ticket << " - " << patient->name
-                                       << " den khoa " << patient->department << ".\n";
-                else std::cout << "Hien khong co benh nhan dang cho.\n";
-            } else if (choice == 3) {
-                const auto ticket = readLine("Ma phieu: ");
-                std::cout << (system.completeConsultation(ticket) ? "Da cap nhat hoan tat luot kham.\n"
-                                                                    : "Khong tim thay luot kham dang thuc hien.\n");
-            } else if (choice == 4) {
-                const auto ticket = readLine("Ma phieu can chuyen cap cuu: ");
-                const int level = readInt("Muc cap cuu (1 nguy kich, 2 rat khan): ", 1, 2);
-                std::cout << (system.transferToEmergency(ticket, level) ? "Da chuyen vao hang uu tien cap cuu.\n"
-                                                                          : "Khong the chuyen: kiem tra ma phieu va trang thai cho.\n");
-            } else if (choice == 5) {
-                const auto waiting = system.waitingPatients();
-                std::cout << "So benh nhan dang cho: " << waiting.size() << '\n';
-                for (const auto& patient : waiting) printPatient(patient, system, true);
-            } else if (choice == 6) {
-                const auto ticket = readLine("Ma phieu: ");
-                const auto* patient = system.findPatient(ticket);
-                if (!patient) std::cout << "Khong tim thay ma phieu.\n";
-                else printPatient(*patient, system, true);
-            } else if (choice == 7) {
-                const auto records = system.callHistory();
-                if (records.empty()) std::cout << "Chua co luot goi kham.\n";
-                for (const auto& record : records)
-                    std::cout << record.calledAt << " | " << record.ticket << " | " << record.patientName
-                              << " | " << record.department << (record.emergency ? " | CAP CUU" : "") << '\n';
-            } else {
-                for (const auto& patient : system.allPatients()) printPatient(patient, system);
-            }
-        } catch (const std::exception& error) {
-            std::cout << "Loi: " << error.what() << '\n';
-        }
-    }
-    std::cout << "Da dong he thong.\n";
-    return 0;
+int main(int argc, char** argv) {
+	if (argc > 1 && string(argv[1]) == "--demo") {
+		chayDemo();
+		return 0;
+	}
+	HeThongBenhVien ht(50);
+	while (true) {
+		cout << "\n===== HE THONG XEP HANG KHAM BENH & CAP CUU =====\n"
+		     << " 1. Tiep nhan va phan luong benh nhan\n"
+		     << " 2. Chuyen khoa cap cuu uu tien\n"
+		     << " 3. Goi so tu dong (toan he thong)\n"
+		     << " 4. Goi so theo phong\n"
+		     << " 5. Uoc tinh thoi gian cho\n"
+		     << " 6. Bang dien tu\n"
+		     << " 7. Thong ke phong kham\n"
+		     << " 8. Lich su goi so\n"
+		     << " 0. Thoat\n";
+		int c = readInt("Chon: ", 0, 8);
+		if (c == 0) break;
+		if (c == 1) {
+			int ma = readInt("  Ma benh nhan: ", 1, 1000000);
+			string ten = readLine("  Ho ten: ");
+			string phong = readLine("  Phong kham: ");
+			int dut = readInt("  Do uu tien (1 = thuong ... 5 = khan nhat): ", 1, 5);
+			kq("Tiep nhan", ht.tiepNhanVaPhanLuong(ma, ten, phong, dut));
+		} else if (c == 2) {
+			kq("Chuyen cap cuu", ht.chuyenKhoaCapCuuUuTien(readInt("  Ma benh nhan: ", 1, 1000000)));
+		} else if (c == 3) {
+			if (!ht.goiSoTuDong()) cout << "  Khong co benh nhan nao dang cho.\n";
+		} else if (c == 4) {
+			if (!ht.goiSoTuDong(readLine("  Ten phong: "))) cout << "  Khong goi duoc (phong khong co BN hoac khong ton tai).\n";
+		} else if (c == 5) {
+			ht.uocTinhThoiGianCho(readInt("  Ma benh nhan: ", 1, 1000000));
+		} else if (c == 6) {
+			ht.hienThiBangDienTu();
+		} else if (c == 7) {
+			ht.thongKePhongKham(readLine("  Ten phong: "));
+		} else if (c == 8) {
+			ht.hienThiLichSuGoi();
+		}
+	}
+	cout << "Tam biet!\n";
+	return 0;
 }
