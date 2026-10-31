@@ -10,3 +10,22 @@ struct BenhNhan {
     int doUuTien;
     int soThuTu;
 }
+class HeThongBenhVien {
+private:
+    BenhNhan* danhSach;
+    int sucChua;
+    int soLuong;
+    int sttTuDong;
+    void sapXepUuTien();
+public:
+    HeThongBenhVien(int sc);
+    ~HeThongBenhVien();
+    void tiepNhanVaPhanLuong(int ma, string ten, string phong, int doUuTien);
+    void chuyenKhoaCapCuuUuTien(int maBN);
+    void goiSoTuDong();
+    void uocTinhThoiGianCho(int maBN);
+    void hienThiBangDienTu();
+    void thongKePhongKham(string tenPhong);
+    bool laRong();
+};
+#endif
