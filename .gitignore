@@ -62,6 +62,10 @@ vcpkg_installed/
 
 # debug information files
 *.dwo
+he_thong_benh_vien
+*.o
+*.exe
+
 
 # test output & cache
 Testing/
