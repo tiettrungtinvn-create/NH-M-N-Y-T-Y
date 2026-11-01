@@ -8,8 +8,8 @@
 
 struct Phong {
 	string ten;
-	HangUuTien hangCapCuu;   // bá»‡nh nhÃ¢n Æ°u tiÃªn (doUuTien >= 2)
-	HangDoi hangThuong;      // bá»‡nh nhÃ¢n thÆ°á»ng (doUuTien == 1), FIFO
+	HangUuTien hangCapCuu;   
+	HangDoi hangThuong;      
 };
 
 class HeThongBenhVien {
