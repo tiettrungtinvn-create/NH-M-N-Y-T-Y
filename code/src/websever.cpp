@@ -5,6 +5,7 @@
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
+#include <ctime>
 #include <fstream>
 #include <filesystem>
 #include <iomanip>
@@ -25,6 +26,7 @@ void closeSocket(Socket s) { closesocket(s); }
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <unistd.h>
 using Socket = int;
 const Socket INVALID = -1;
@@ -56,29 +58,27 @@ string ticket(int id) {
     return out.str();
 }
 
-string nowText() {
-    const auto now = chrono::system_clock::now();
+tm vietnamTime() {
+    const auto now = chrono::system_clock::now() + chrono::hours(7);
     const time_t time = chrono::system_clock::to_time_t(now);
     tm local{};
 #ifdef _WIN32
-    localtime_s(&local, &time);
+    gmtime_s(&local, &time);
 #else
-    localtime_r(&time, &local);
+    gmtime_r(&time, &local);
 #endif
+    return local;
+}
+
+string nowText() {
+    const tm local = vietnamTime();
     ostringstream out;
     out << put_time(&local, "%H:%M:%S %d/%m/%Y");
     return out.str();
 }
 
 int currentYear() {
-    const auto now = chrono::system_clock::now();
-    const time_t time = chrono::system_clock::to_time_t(now);
-    tm local{};
-#ifdef _WIN32
-    localtime_s(&local, &time);
-#else
-    localtime_r(&time, &local);
-#endif
+    const tm local = vietnamTime();
     return local.tm_year + 1900;
 }
 
@@ -108,6 +108,13 @@ string trim(const string& value) {
     const auto first = value.find_first_not_of(" \t\r\n");
     if (first == string::npos) return "";
     return value.substr(first, value.find_last_not_of(" \t\r\n") - first + 1);
+}
+
+int parseNumber(const string& value) {
+    if (value.empty() || !all_of(value.begin(), value.end(),
+        [](unsigned char c) { return isdigit(c) != 0; }))
+        throw invalid_argument("Gia tri so khong hop le.");
+    return stoi(value);
 }
 
 class WebHospital {
@@ -162,7 +169,7 @@ class WebHospital {
         string version;
         size_t count = 0, historyCount = 0;
         if (!(file >> version >> nextId >> nextOrder >> count >> historyCount) ||
-            version != "CAREQUEUE1" || count > 100000 || historyCount > 100000)
+            version != "CAREQUEUE1" || count > 100000 || historyCount > MAX_HANG_DOI)
             throw runtime_error("File du lieu khong hop le.");
         for (size_t i = 0; i < count; ++i) {
             Patient p;
@@ -179,6 +186,17 @@ class WebHospital {
                 throw runtime_error("Khong doc duoc lich su goi.");
             calls.push_back(c);
         }
+        for (auto it = calls.rbegin(); it != calls.rend(); ++it) {
+            const Patient* p = find(ticket(it->id));
+            if (p == nullptr) throw runtime_error("Lich su goi khong co ho so benh nhan.");
+            BenhNhan bn;
+            bn.maBenhNhan = p->id;
+            bn.ten = p->name;
+            bn.phongKham = it->department;
+            bn.doUuTien = 6 - p->triage;
+            bn.soThuTu = p->order;
+            queues.luuLichSuGoi(bn);
+        }
         vector<Patient*> waiting;
         for (auto& p : patients) if (p.status == "Dang cho") waiting.push_back(&p);
         sort(waiting.begin(), waiting.end(),
@@ -193,13 +211,24 @@ class WebHospital {
 
     vector<const Patient*> waitingOrder() const {
         vector<const Patient*> result;
-        for (const auto& p : patients) if (p.status == "Dang cho") result.push_back(&p);
-        sort(result.begin(), result.end(), [](const Patient* a, const Patient* b) {
-            if (a->transferred != b->transferred) return a->transferred;
-            if (a->triage != b->triage) return a->triage < b->triage;
-            return a->order < b->order;
-        });
+        BenhNhan danhSach[MAX_HANG_DOI];
+        const int count = queues.lietKeThuTuCho(danhSach, MAX_HANG_DOI);
+        for (int i = 0; i < count; i++) {
+            const Patient* p = find(ticket(danhSach[i].maBenhNhan));
+            if (p == nullptr || p->status != "Dang cho" || p->department != danhSach[i].phongKham)
+                throw runtime_error("Ho so va hang doi khong dong bo.");
+            result.push_back(p);
+        }
+        if (count_if(patients.begin(), patients.end(),
+                     [](const Patient& p) { return p.status == "Dang cho"; }) != count)
+            throw runtime_error("Ho so va hang doi khong dong bo.");
         return result;
+    }
+
+    bool roomBusy(const string& department) const {
+        for (const auto& p : patients)
+            if (p.department == department && p.status == "Dang kham") return true;
+        return false;
     }
 
     void recordCall(const BenhNhan& called) {
@@ -217,8 +246,22 @@ public:
 
     string registerPatient(const map<string, string>& form);
     string callNext(const string& department) {
+        string selectedRoom = department;
+        if (!selectedRoom.empty() && roomBusy(selectedRoom))
+            throw invalid_argument("Phong dang kham benh nhan khac.");
+        if (selectedRoom.empty()) {
+            const auto waiting = waitingOrder();
+            if (waiting.empty()) throw invalid_argument("Khong co benh nhan dang cho.");
+            for (const auto* p : waiting) {
+                if (!roomBusy(p->department)) {
+                    selectedRoom = p->department;
+                    break;
+                }
+            }
+            if (selectedRoom.empty()) throw invalid_argument("Khong co phong trong de goi so.");
+        }
         BenhNhan bn;
-        if (!queues.layBenhNhanTiepTheo(department, bn))
+        if (!queues.layBenhNhanTiepTheo(selectedRoom, bn))
             throw invalid_argument("Khong co benh nhan dang cho.");
         recordCall(bn);
         return ticket(bn.maBenhNhan);
@@ -226,7 +269,16 @@ public:
     string callSpecific(const string& code) {
         Patient* p = find(code);
         BenhNhan bn;
-        if (p == nullptr || p->status != "Dang cho" || !queues.goiTheoMa(p->id, bn))
+        if (p == nullptr || p->status != "Dang cho")
+            throw invalid_argument("Khong tim thay benh nhan dang cho.");
+        if (roomBusy(p->department)) throw invalid_argument("Phong dang kham benh nhan khac.");
+        for (const auto* waiting : waitingOrder()) {
+            if (waiting->department == p->department) {
+                if (waiting != p) throw invalid_argument("Benh nhan chua den luot goi.");
+                break;
+            }
+        }
+        if (!queues.goiTheoMa(p->id, bn))
             throw invalid_argument("Khong tim thay benh nhan dang cho.");
         recordCall(bn);
         return code;
@@ -292,8 +344,8 @@ string WebHospital::registerPatient(const map<string, string>& form) {
         throw invalid_argument("Doi tuong khong hop le.");
     if (std::find(departments.begin(), departments.end(), department) == departments.end())
         throw invalid_argument("Khoa khong hop le.");
-    const int year = stoi(get("birthYear"));
-    const int triage = stoi(get("triage"));
+    const int year = parseNumber(get("birthYear"));
+    const int triage = parseNumber(get("triage"));
     if (year < currentYear() - 120 || year > currentYear() || triage < 1 || triage > 5)
         throw invalid_argument("Nam sinh hoac muc do uu tien khong hop le.");
     if (nextId > 1000000) throw invalid_argument("Da het ma benh nhan.");
@@ -328,7 +380,11 @@ string WebHospital::stateJson() const {
             << jsonEscape(p.department) << "\",\"triageLevel\":" << p.triage
             << ",\"status\":\"" << p.status << "\",\"emergency\":"
             << emergency << ",\"waitMinutes\":";
-        if (p.status == "Dang cho") out << queues.thoiGianChoDuKien(p.id);
+        if (p.status == "Dang cho") {
+            int minutes = queues.thoiGianChoDuKien(p.id);
+            if (roomBusy(p.department)) minutes += PHUT_MOI_LUOT;
+            out << minutes;
+        }
         else out << "null";
         out << '}';
     };
@@ -344,15 +400,19 @@ string WebHospital::stateJson() const {
         patientJson(*waiting[i]);
     }
     out << "],\"history\":[";
+    BenhNhan history[MAX_HANG_DOI];
+    const int historySize = queues.lietKeLichSuGoi(history, MAX_HANG_DOI);
+    if (historySize != static_cast<int>(calls.size()))
+        throw runtime_error("Lich su goi va Deque khong dong bo.");
     for (size_t i = 0; i < calls.size(); ++i) {
         if (i) out << ',';
         const auto& c = calls[i];
-        const auto* p = find(ticket(c.id));
-        string name;
-        if (p != nullptr) name = p->name;
+        const auto& bn = history[i];
+        if (c.id != bn.maBenhNhan || c.department != bn.phongKham)
+            throw runtime_error("Lich su goi va Deque khong dong bo.");
         out << "{\"ticket\":\"" << ticket(c.id) << "\",\"name\":\""
-            << jsonEscape(name) << "\",\"department\":\""
-            << jsonEscape(c.department) << "\",\"calledAt\":\""
+            << jsonEscape(bn.ten) << "\",\"department\":\""
+            << jsonEscape(bn.phongKham) << "\",\"calledAt\":\""
             << jsonEscape(c.calledAt) << "\"}";
     }
     out << "],\"departments\":[";
@@ -431,7 +491,8 @@ string field(const map<string, string>& form, const string& key) {
 string base64(const string& value) {
     const char* alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     string result;
-    int bits = 0, buffer = 0;
+    int bits = 0;
+    unsigned int buffer = 0;
     for (unsigned char c : value) {
         buffer = (buffer << 8) | c;
         bits += 8;
@@ -439,6 +500,7 @@ string base64(const string& value) {
             bits -= 6;
             result += alphabet[(buffer >> bits) & 63];
         }
+        buffer &= (1u << bits) - 1;
     }
     if (bits) result += alphabet[(buffer << (6 - bits)) & 63];
     while (result.size() % 4) result += '=';
@@ -448,10 +510,13 @@ string base64(const string& value) {
 Request readRequest(Socket client) {
     string raw;
     char buffer[4096];
+    const auto deadline = chrono::steady_clock::now() + chrono::seconds(5);
     size_t headerEnd = string::npos, length = 0;
     bool parsed = false;
     Request request;
     for (;;) {
+        if (chrono::steady_clock::now() >= deadline)
+            throw runtime_error("Yeu cau HTTP qua thoi gian cho.");
         const int n = recv(client, buffer, sizeof(buffer), 0);
         if (n <= 0) throw runtime_error("Yeu cau HTTP bi gian doan.");
         raw.append(buffer, n);
@@ -469,7 +534,7 @@ Request readRequest(Socket client) {
                     if (colon == string::npos) continue;
                     const string name = lower(line.substr(0, colon));
                     const string value = trim(line.substr(colon + 1));
-                    if (name == "content-length") length = stoul(value);
+                    if (name == "content-length") length = parseNumber(value);
                     if (name == "authorization") request.authorization = value;
                     if (name == "origin") request.origin = value;
                     if (name == "host") request.host = value;
@@ -500,7 +565,8 @@ void sendResponse(Socket client, int status, const string& type, const string& b
     out << "Connection: close\r\n\r\n" << body;
     const string response = out.str();
     size_t sent = 0;
-    while (sent < response.size()) {
+    const auto deadline = chrono::steady_clock::now() + chrono::seconds(5);
+    while (sent < response.size() && chrono::steady_clock::now() < deadline) {
         const int n = send(client, response.data() + sent,
                            static_cast<int>(response.size() - sent), 0);
         if (n <= 0) break;
@@ -634,6 +700,18 @@ int main() {
         for (;;) {
             Socket client = accept(server, nullptr, nullptr);
             if (client == INVALID) continue;
+#ifdef _WIN32
+            DWORD timeout = 5000;
+#else
+            timeval timeout{5, 0};
+#endif
+            if (setsockopt(client, SOL_SOCKET, SO_RCVTIMEO,
+                           reinterpret_cast<const char*>(&timeout), sizeof(timeout)) != 0 ||
+                setsockopt(client, SOL_SOCKET, SO_SNDTIMEO,
+                           reinterpret_cast<const char*>(&timeout), sizeof(timeout)) != 0) {
+                closeSocket(client);
+                throw runtime_error("Khong dat duoc thoi gian cho ket noi.");
+            }
             handle(client, hospital, expectedAuth);
             closeSocket(client);
         }
