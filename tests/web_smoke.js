@@ -79,7 +79,11 @@ async function main() {
     assert.equal((await fetch(base+'/api/register',{method:'POST',headers:{Authorization:auth,Origin:'https://other.example','Content-Type':'application/x-www-form-urlencoded'},body:'name=x'})).status,400);
     assert.equal((await get('/')).status,200);
     assert.equal((await get('/waiting',false)).status,200);
-    assert.equal((await get('/queue-demo',false)).status,200);
+    const demo=await (await get('/queue-demo',false)).text();
+    assert(demo.includes('</html>'));
+    const script=demo.match(/<script>([\s\S]*?)<\/script>/);
+    assert(script,'Trang minh họa Queue thiếu đoạn JavaScript hoàn chỉnh.');
+    new Function(script[1]);
     const a=(await register('TEST_PRIVATE_A',5)).ticket;
     const b=(await register('TEST_PRIVATE_B',5)).ticket;
     const c=(await register('TEST_PRIVATE_C',1)).ticket;
