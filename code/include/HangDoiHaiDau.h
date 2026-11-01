@@ -55,7 +55,8 @@ public:
 		dem++;
 		return true;
 	}
-bool layDau(BenhNhan& bn) {
+
+	bool layDau(BenhNhan& bn) {
 		if (dem == 0) return false;
 		Nut* t = dau;
 		bn = t->du;
@@ -89,5 +90,3 @@ bool layDau(BenhNhan& bn) {
 };
 
 #endif
-
-	

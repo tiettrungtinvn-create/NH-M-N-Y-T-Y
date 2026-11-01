@@ -153,7 +153,7 @@ byId('queue-table-body').addEventListener('click',async e=>{
   if(b.dataset.action==='select'){activeTicket=ticket;render();message('Đã chọn bệnh nhân '+ticket);return;}
   if(b.dataset.action==='cancel' && !confirm('Hủy phiếu '+ticket+'?'))return;
   const routes={call:'/api/call-specific',emergency:'/api/transfer',cancel:'/api/cancel',complete:'/api/complete'};
-  if(await action(routes[b.dataset.action],{ticket,triage:'1'},'Đã cập nhật phiếu '+ticket) && b.dataset.action==='call'){activeTicket=ticket;render();sound();}
+  if(await action(routes[b.dataset.action],{ticket},'Đã cập nhật phiếu '+ticket) && b.dataset.action==='call'){activeTicket=ticket;render();sound();}
 });
 byId('intake-form').addEventListener('submit',async e=>{
   e.preventDefault();const birthYear=Number(byId('input-birth-year').value), nowYear=new Date().getFullYear();

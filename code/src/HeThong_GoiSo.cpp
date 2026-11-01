@@ -1,6 +1,6 @@
 #include "HeThongBenhVien.h"
 
-bool HeThongBenhVien::goiSoTuDong(string tenPhong) {
+bool HeThongBenhVien::layBenhNhanTiepTheo(string tenPhong, BenhNhan &bn) {
     if (laRong()) return false;
     int viTri = -1;
     bool capCuu = false;
@@ -31,18 +31,52 @@ bool HeThongBenhVien::goiSoTuDong(string tenPhong) {
         }
     }
 
-    BenhNhan bn;
     if (capCuu) phong[viTri].hangCapCuu.lay(bn);
     else phong[viTri].hangThuong.lay(bn);
     soLuong--;
+    luuLichSuGoi(bn);
+    return true;
+}
+
+void HeThongBenhVien::luuLichSuGoi(const BenhNhan &bn) {
     if (lichSuGoi.kichThuoc() == MAX_HANG_DOI) {
         BenhNhan cu;
         lichSuGoi.layDau(cu);
     }
     lichSuGoi.themCuoi(bn);
+}
+
+bool HeThongBenhVien::goiSoTuDong(string tenPhong) {
+    BenhNhan bn;
+    if (!layBenhNhanTiepTheo(tenPhong, bn)) return false;
     cout << "[LOA THONG BAO] Moi BN STT " << bn.soThuTu << " - " << bn.ten
          << " vao " << bn.phongKham << "!\n";
     return true;
+}
+
+bool HeThongBenhVien::goiTheoMa(int maBN, BenhNhan &bn) {
+    int viTri;
+    bool capCuu;
+    if (!timBenhNhan(maBN, bn, viTri, capCuu)) return false;
+    bool daLay;
+    if (capCuu) daLay = phong[viTri].hangCapCuu.layTheoMa(maBN, bn);
+    else daLay = phong[viTri].hangThuong.layTheoMa(maBN, bn);
+    if (!daLay) return false;
+    soLuong--;
+    luuLichSuGoi(bn);
+    return true;
+}
+
+bool HeThongBenhVien::huyBenhNhan(int maBN) {
+    BenhNhan bn;
+    int viTri;
+    bool capCuu;
+    if (!timBenhNhan(maBN, bn, viTri, capCuu)) return false;
+    bool daLay;
+    if (capCuu) daLay = phong[viTri].hangCapCuu.layTheoMa(maBN, bn);
+    else daLay = phong[viTri].hangThuong.layTheoMa(maBN, bn);
+    if (daLay) soLuong--;
+    return daLay;
 }
 
 void HeThongBenhVien::hienThiLichSuGoi() {
