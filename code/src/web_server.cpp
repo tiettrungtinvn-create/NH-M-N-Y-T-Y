@@ -669,8 +669,6 @@ int main() {
         const char* passwordEnv = getenv("ADMIN_PASSWORD");
         string password;
         if (passwordEnv != nullptr) password = passwordEnv;
-        if (host != "127.0.0.1" && password.empty())
-            throw runtime_error("Dat ADMIN_PASSWORD truoc khi mo website cong khai.");
         string expectedAuth;
         if (!password.empty()) expectedAuth = "Basic " + base64("admin:" + password);
         const char* dataEnv = getenv("HOSPITAL_DATA");
