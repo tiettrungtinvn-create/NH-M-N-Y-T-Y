@@ -1,6 +1,6 @@
 # CareQueue UTC2 — Hệ thống xếp hàng khám bệnh và cấp cứu
 
-Đồ án C++ về **Queue, Priority Queue và Deque**. Dự án có chương trình dòng lệnh để trình bày cấu trúc dữ liệu và **website công khai** (không cần đăng nhập) để tiếp nhận, điều phối bệnh nhân. Đây là bản học tập và trình diễn; không dùng để lưu hồ sơ bệnh án thật.
+Bài tập lớn C++ về **Queue, Priority Queue và Deque**. Dự án có chương trình dòng lệnh để trình bày cấu trúc dữ liệu và **website công khai** (không cần đăng nhập) để tiếp nhận, điều phối bệnh nhân. Đây là bản học tập và trình diễn; không dùng để lưu hồ sơ bệnh án thật.
 
 ## Chức năng
 
