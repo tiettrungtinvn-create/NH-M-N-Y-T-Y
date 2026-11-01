@@ -1,5 +1,26 @@
 #include "HeThongBenhVien.h"
-
+int HeThongBenhVien::lietKeThuTuCho(BenhNhan danhSach[], int sucChuaMang) const {
+    if (danhSach == NULL || sucChuaMang <= 0) return 0;
+    BenhNhan tatCa[MAX_HANG_DOI];
+    int dem = 0;
+    for (int i = 0; i < soPhong; i++) {
+        for (int j = 0; j < phong[i].hangCapCuu.kichThuoc(); j++)
+            phong[i].hangCapCuu.xemTaiViTri(j, tatCa[dem++]);
+        for (int j = 0; j < phong[i].hangThuong.kichThuoc(); j++)
+            phong[i].hangThuong.xemTaiViTri(j, tatCa[dem++]);
+    }
+    for (int i = 0; i < dem; i++) {
+        int totNhat = i;
+        for (int j = i + 1; j < dem; j++)
+            if (tatCa[totNhat] < tatCa[j]) totNhat = j;
+        BenhNhan tam = tatCa[i];
+        tatCa[i] = tatCa[totNhat];
+        tatCa[totNhat] = tam;
+    }
+    if (dem > sucChuaMang) dem = sucChuaMang;
+    for (int i = 0; i < dem; i++) danhSach[i] = tatCa[i];
+    return dem;
+}
 int HeThongBenhVien::thoiGianChoDuKien(int maBN) {
     BenhNhan bn, dangXet;
     int viTri;
