@@ -3,7 +3,9 @@
 #include "HeThongBenhVien.h"
 
 static void kq(const string& viec, bool ok) {
-	cout << "  -> " << viec << ": " << (ok ? "THANH CONG" : "THAT BAI") << "\n";
+	cout << "  -> " << viec << ": ";
+	if (ok) cout << "THANH CONG\n";
+	else cout << "THAT BAI\n";
 }
 
 void chayDemo() {
@@ -75,6 +77,7 @@ static string readLine(const string& prompt) {
 	if (cin.eof()) exit(0);
 	return s;
 }
+
 int main(int argc, char** argv) {
 	if (argc > 1 && string(argv[1]) == "--demo") {
 		chayDemo();
