@@ -61,6 +61,8 @@ function selectedPatient() {
 }
 function render() {
   const patients = state.patients || [], waiting = state.waiting || [];
+  const ordered = [...waiting, ...patients.filter(p => p.status !== 'Dang cho')];
+  const busy = department => patients.some(p => p.department === department && p.status === 'Dang kham');
   byId('kpi-waiting').textContent = waiting.length;
   byId('nav-queue-badge').textContent = waiting.length;
   byId('kpi-emergency').textContent = waiting.filter(p => p.emergency).length;
@@ -77,12 +79,12 @@ function render() {
   byId('room-list').innerHTML = rooms.map(room => {
     const count = waiting.filter(p => p.department === room.department).length;
     const selected = byId('filter-dept').value === room.department;
-    return '<button type="button" data-room="'+escapeText(room.department)+'" aria-pressed="'+selected+'" class="room-card'+(selected ? ' selected' : '')+'"><span class="room-card-top"><b>PHÒNG '+room.number+'</b><span>'+count+' chờ</span></span><strong>'+escapeText(room.name)+'</strong><small>'+escapeText(room.doctor)+'</small></button>';
+    return '<button type="button" data-room="'+escapeText(room.department)+'" aria-pressed="'+selected+'" class="room-card'+(selected ? ' selected' : '')+'"><span class="room-card-top"><b>PHÒNG '+room.number+'</b><span>'+(busy(room.department)?'Đang khám · ':'')+count+' chờ</span></span><strong>'+escapeText(room.name)+'</strong><small>'+escapeText(room.doctor)+'</small></button>';
   }).join('');
   const q = byId('filter-search').value.toLocaleLowerCase('vi').trim(), dept = byId('filter-dept').value;
   const priority = byId('filter-priority').value, status = byId('filter-status').value;
   const statusKey = {'Dang cho':'waiting','Dang kham':'examining','Da kham xong':'completed','Vang mat':'absent','Da huy':'cancelled'};
-  const shown = patients.filter(p => (!dept || p.department === dept) &&
+  const shown = ordered.filter(p => (!dept || p.department === dept) &&
     (priority === 'ALL' || (priority === 'urgent' ? p.emergency : String(p.triageLevel) === priority)) &&
     (status === 'ALL' || statusKey[p.status] === status) &&
     (p.ticket+' '+p.name+' '+p.symptom+' '+(labels[p.department] || p.department)).toLocaleLowerCase('vi').includes(q));
@@ -90,7 +92,9 @@ function render() {
   byId('queue-empty-state').classList.toggle('hidden', shown.length > 0);
   byId('queue-table-body').innerHTML = shown.map(p => {
     const ticket=escapeText(p.ticket);
-    let actions = p.status === 'Dang cho' ? '<button data-action="call" data-ticket="'+ticket+'">Gọi</button> <button data-action="emergency" data-ticket="'+ticket+'">Cấp cứu</button> <button data-action="cancel" data-ticket="'+ticket+'">Hủy phiếu</button>' :
+    const canCall = p.status === 'Dang cho' && !busy(p.department) && waiting.find(w => w.department === p.department)?.ticket === p.ticket;
+    const callButton = canCall ? '<button data-action="call" data-ticket="'+ticket+'">Gọi</button>' : '<span class="text-slate-400">Đang chờ lượt</span>';
+    let actions = p.status === 'Dang cho' ? callButton+' <button data-action="emergency" data-ticket="'+ticket+'">Cấp cứu</button> <button data-action="cancel" data-ticket="'+ticket+'">Hủy phiếu</button>' :
       p.status === 'Dang kham' ? '<button data-action="select" data-ticket="'+ticket+'">Chọn</button> <button data-action="complete" data-ticket="'+ticket+'">Hoàn tất</button>' : '';
     const details = [p.birthYear ? 'Sinh năm '+p.birthYear : p.age+' tuổi', genders[p.gender], categories[p.category], p.symptom].filter(Boolean).join(' · ');
     return '<tr><td class="py-3 pl-6 font-bold text-sky-700">'+ticket+'</td><td class="p-3">'+escapeText(p.name)+'<div class="text-xs text-slate-500">'+escapeText(details)+'</div></td><td class="p-3">'+escapeText(labels[p.department]||p.department)+'</td><td class="p-3">'+priorityLabel(p.triageLevel)+'</td><td class="p-3">'+escapeText(statuses[p.status]||p.status)+'</td><td class="p-3">'+(p.waitMinutes == null ? '—' : p.waitMinutes+' phút')+'</td><td class="p-3 text-right text-sky-700 font-semibold">'+actions+'</td></tr>';
@@ -101,19 +105,21 @@ function render() {
     activeTicket = last ? last.ticket : '';
   }
   const current = selectedPatient();
+  const lastCall = (state.history || [])[0];
   byId('hero-active-code').textContent = current ? current.ticket : '—';
   byId('hero-active-name').textContent = current ? current.name+' ('+current.age+' tuổi)' : 'Chưa có bệnh nhân được chọn';
   byId('hero-active-dept').textContent = current ? (labels[current.department]||current.department) : 'Chưa có lượt khám';
-  byId('hero-active-room').textContent = '';
+  byId('hero-active-room').textContent = current ? 'Phòng '+(rooms.find(room => room.department === current.department)?.number || '—') : '';
   byId('hero-active-status').textContent = current ? 'Đang khám' : 'Chưa có lượt đang khám';
   byId('hero-active-priority').textContent = current ? priorityLabel(current.triageLevel) : '';
-  byId('last-called-text').textContent = current ? current.ticket+' · '+current.name : 'Chưa có lượt đang khám';
-  byId('last-called-time').textContent = '';
+  byId('last-called-text').textContent = lastCall ? lastCall.ticket+' · '+lastCall.name : 'Chưa có lượt gọi';
+  byId('last-called-time').textContent = lastCall ? lastCall.calledAt : '';
   for (const id of ['hero-active-box','last-called-text','next-preview-name']) byId(id).style.visibility='visible';
-  const next=waiting.find(p => !byId('dispatch-dept').value || p.department === byId('dispatch-dept').value);
-  byId('next-preview-name').textContent = next ? next.name : 'Không có bệnh nhân đang chờ';
+  const next=waiting.find(p => (!byId('dispatch-dept').value || p.department === byId('dispatch-dept').value) && !busy(p.department));
+  byId('next-preview-name').textContent = next ? next.name : 'Không có phòng trống hoặc bệnh nhân đang chờ';
   byId('next-preview-priority').textContent = next ? priorityLabel(next.triageLevel) : '—';
   byId('next-preview-meta').textContent = next ? next.ticket+' · '+(labels[next.department]||next.department) : '—';
+  byId('btn-call-next').disabled = !next;
   byId('next-ticket-preview').textContent = 'Mã phiếu được cấp tự động';
 }
 async function refresh() {

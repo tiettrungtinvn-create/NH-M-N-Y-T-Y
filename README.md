@@ -10,6 +10,8 @@ Web server nằm tại `code/src/web_server.cpp`. Server gọi **cùng lớp
 mảng vòng (`HangDoi.h`), ca ưu tiên vào danh sách liên kết có thứ tự
 (`HangUuTien.h`), lịch sử gọi vào Deque danh sách liên kết đôi
 (`HangDoiHaiDau.h`). Không có bộ hàng đợi web riêng.
+Danh sách chờ và lịch sử gọi trên web được đọc từ Queue, Priority Queue và Deque
+của lớp này; nút gọi từng phiếu chỉ cho phép bệnh nhân đứng đầu phòng.
 
 ## Chạy trên máy cá nhân
 

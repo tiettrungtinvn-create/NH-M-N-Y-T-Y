@@ -35,7 +35,6 @@ private:
 	int timPhong(string tenPhong) const;
 	int taoPhong(string tenPhong);
 	bool timBenhNhan(int ma, BenhNhan &bn, int &viTriPhong, bool &capCuu) const;
-	void luuLichSuGoi(const BenhNhan &bn);
 
 public:
 	HeThongBenhVien(int sc = MAX_HANG_DOI);
@@ -48,7 +47,10 @@ public:
 	bool layBenhNhanTiepTheo(string tenPhong, BenhNhan &bn);
 	bool goiTheoMa(int maBN, BenhNhan &bn);
 	bool huyBenhNhan(int maBN);
+	void luuLichSuGoi(const BenhNhan &bn);
+	int lietKeLichSuGoi(BenhNhan danhSach[], int sucChuaMang) const;
 	int thoiGianChoDuKien(int maBN) const;
+	int lietKeThuTuCho(BenhNhan danhSach[], int sucChuaMang) const;
 	void uocTinhThoiGianCho(int maBN);
 	void hienThiBangDienTu();
 	void thongKePhongKham(string tenPhong);

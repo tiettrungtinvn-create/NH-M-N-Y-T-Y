@@ -46,6 +46,15 @@ void HeThongBenhVien::luuLichSuGoi(const BenhNhan &bn) {
     lichSuGoi.themCuoi(bn);
 }
 
+int HeThongBenhVien::lietKeLichSuGoi(BenhNhan danhSach[], int sucChuaMang) const {
+    if (danhSach == NULL || sucChuaMang <= 0) return 0;
+    int dem = lichSuGoi.kichThuoc();
+    if (dem > sucChuaMang) dem = sucChuaMang;
+    for (int i = 0; i < dem; i++)
+        lichSuGoi.xemTaiViTri(lichSuGoi.kichThuoc() - 1 - i, danhSach[i]);
+    return dem;
+}
+
 bool HeThongBenhVien::goiSoTuDong(string tenPhong) {
     BenhNhan bn;
     if (!layBenhNhanTiepTheo(tenPhong, bn)) return false;
