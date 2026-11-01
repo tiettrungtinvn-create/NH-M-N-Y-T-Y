@@ -75,4 +75,47 @@ static string readLine(const string& prompt) {
 	if (cin.eof()) exit(0);
 	return s;
 }
-
+int main(int argc, char** argv) {
+	if (argc > 1 && string(argv[1]) == "--demo") {
+		chayDemo();
+		return 0;
+	}
+	HeThongBenhVien ht(50);
+	while (true) {
+		cout << "\n===== HE THONG XEP HANG KHAM BENH & CAP CUU =====\n"
+		     << " 1. Tiep nhan va phan luong benh nhan\n"
+		     << " 2. Chuyen khoa cap cuu uu tien\n"
+		     << " 3. Goi so tu dong (toan he thong)\n"
+		     << " 4. Goi so theo phong\n"
+		     << " 5. Uoc tinh thoi gian cho\n"
+		     << " 6. Bang dien tu\n"
+		     << " 7. Thong ke phong kham\n"
+		     << " 8. Lich su goi so\n"
+		     << " 0. Thoat\n";
+		int c = readInt("Chon: ", 0, 8);
+		if (c == 0) break;
+		if (c == 1) {
+			int ma = readInt("  Ma benh nhan: ", 1, 1000000);
+			string ten = readLine("  Ho ten: ");
+			string phong = readLine("  Phong kham: ");
+			int dut = readInt("  Do uu tien (1 = thuong ... 5 = khan nhat): ", 1, 5);
+			kq("Tiep nhan", ht.tiepNhanVaPhanLuong(ma, ten, phong, dut));
+		} else if (c == 2) {
+			kq("Chuyen cap cuu", ht.chuyenKhoaCapCuuUuTien(readInt("  Ma benh nhan: ", 1, 1000000)));
+		} else if (c == 3) {
+			if (!ht.goiSoTuDong()) cout << "  Khong co benh nhan nao dang cho.\n";
+		} else if (c == 4) {
+			if (!ht.goiSoTuDong(readLine("  Ten phong: "))) cout << "  Khong goi duoc (phong khong co BN hoac khong ton tai).\n";
+		} else if (c == 5) {
+			ht.uocTinhThoiGianCho(readInt("  Ma benh nhan: ", 1, 1000000));
+		} else if (c == 6) {
+			ht.hienThiBangDienTu();
+		} else if (c == 7) {
+			ht.thongKePhongKham(readLine("  Ten phong: "));
+		} else if (c == 8) {
+			ht.hienThiLichSuGoi();
+		}
+	}
+	cout << "Tam biet!\n";
+	return 0;
+}
