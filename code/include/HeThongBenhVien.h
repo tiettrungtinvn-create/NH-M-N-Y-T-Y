@@ -1,31 +1,49 @@
-#ifndef HE_THONG_BENH_VIEN_H
-#define HE_THONG_BENH_VIEN_H
-#include <iostream>
-#include <string>
-using namespace std;
-struct BenhNhan {
-    int maBenhNhan;
-    string ten;
-    string phongKham;
-    int doUuTien;
-    int soThuTu;
+#ifndef HETHONGBENHVIEN_H
+#define HETHONGBENHVIEN_H
+
+#include "BenhNhan.h"
+#include "HangDoi.h"
+#include "HangDoiHaiDau.h"
+#include "HangUuTien.h"
+
+struct Phong {
+	string ten;
+	HangUuTien hangCapCuu;   // bá»‡nh nhÃ¢n Æ°u tiÃªn (doUuTien >= 2)
+	HangDoi hangThuong;      // bá»‡nh nhÃ¢n thÆ°á»ng (doUuTien == 1), FIFO
 };
+
 class HeThongBenhVien {
 private:
-    BenhNhan* danhSach;
-    int sucChua;
-    int soLuong;
-    int sttTuDong;
-    void sapXepUuTien();
+	Phong phong[SO_PHONG_TOI_DA];
+	int soPhong;
+	int sucChua;
+	int soLuong;
+	int sttTuDong;
+	HangDoiHaiDau lichSuGoi;
+
+	int timPhong(string tenPhong) const;
+	int taoPhong(string tenPhong);
+	bool timBenhNhan(int ma, BenhNhan &bn, int &viTriPhong, bool &capCuu) const;
+	void luuLichSuGoi(const BenhNhan &bn);
+
 public:
-    HeThongBenhVien(int sc);
-    ~HeThongBenhVien();
-    void tiepNhanVaPhanLuong(int ma, string ten, string phong, int doUuTien);
-    void chuyenKhoaCapCuuUuTien(int maBN);
-    void goiSoTuDong();
-    void uocTinhThoiGianCho(int maBN);
-    void hienThiBangDienTu();
-    void thongKePhongKham(string tenPhong);
-    bool laRong();
+	HeThongBenhVien(int sc = MAX_HANG_DOI);
+	HeThongBenhVien(const HeThongBenhVien&) = delete;
+	HeThongBenhVien& operator=(const HeThongBenhVien&) = delete;
+
+	bool tiepNhanVaPhanLuong(int ma, string ten, string tenPhong, int doUuTien);
+	bool chuyenKhoaCapCuuUuTien(int maBN, string tenKhoa = "Khoa Cap Cuu");
+	bool goiSoTuDong(string tenPhong = "");
+	bool layBenhNhanTiepTheo(string tenPhong, BenhNhan &bn);
+	bool goiTheoMa(int maBN, BenhNhan &bn);
+	bool huyBenhNhan(int maBN);
+	int thoiGianChoDuKien(int maBN) const;
+	void uocTinhThoiGianCho(int maBN);
+	void hienThiBangDienTu();
+	void thongKePhongKham(string tenPhong);
+	void hienThiLichSuGoi();
+	bool laRong();
+	int kichThuoc();
 };
+
 #endif
