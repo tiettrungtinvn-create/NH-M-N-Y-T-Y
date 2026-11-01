@@ -59,7 +59,9 @@ Trong C++, `doUuTien=1` là thường, `2..5` là ưu tiên tăng dần và `999
 là ca chuyển khoa cấp cứu. Giao diện dùng cấp độ phân loại y tế theo chiều
 ngược lại: `1` nguy kịch, `5` thông thường. Server chuyển bằng công thức
 `doUuTien = 6 - triageLevel`. Người cùng mức được gọi theo FIFO; thời gian
-chờ dự kiến là **10 phút × số người đứng trước trong cùng phòng**.
+chờ dự kiến là **10 phút × (số người đứng trước + lượt đang khám trong cùng phòng)**.
+Mỗi phòng chỉ gọi một bệnh nhân đang khám tại một thời điểm; khi chọn “Tất cả
+khoa”, hệ thống bỏ qua phòng đang bận và gọi người ưu tiên cao nhất ở phòng còn trống.
 
 ## Kiểm thử nhanh
 

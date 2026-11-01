@@ -25,6 +25,7 @@ void closeSocket(Socket s) { closesocket(s); }
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <unistd.h>
 using Socket = int;
 const Socket INVALID = -1;
@@ -202,6 +203,12 @@ class WebHospital {
         return result;
     }
 
+    bool roomBusy(const string& department) const {
+        for (const auto& p : patients)
+            if (p.department == department && p.status == "Dang kham") return true;
+        return false;
+    }
+
     void recordCall(const BenhNhan& called) {
         Patient* p = find(ticket(called.maBenhNhan));
         if (p == nullptr) throw runtime_error("Khong tim thay ho so cua luot goi.");
@@ -217,8 +224,22 @@ public:
 
     string registerPatient(const map<string, string>& form);
     string callNext(const string& department) {
+        string selectedRoom = department;
+        if (!selectedRoom.empty() && roomBusy(selectedRoom))
+            throw invalid_argument("Phong dang kham benh nhan khac.");
+        if (selectedRoom.empty()) {
+            const auto waiting = waitingOrder();
+            if (waiting.empty()) throw invalid_argument("Khong co benh nhan dang cho.");
+            for (const auto* p : waiting) {
+                if (!roomBusy(p->department)) {
+                    selectedRoom = p->department;
+                    break;
+                }
+            }
+            if (selectedRoom.empty()) throw invalid_argument("Khong co phong trong de goi so.");
+        }
         BenhNhan bn;
-        if (!queues.layBenhNhanTiepTheo(department, bn))
+        if (!queues.layBenhNhanTiepTheo(selectedRoom, bn))
             throw invalid_argument("Khong co benh nhan dang cho.");
         recordCall(bn);
         return ticket(bn.maBenhNhan);
@@ -226,7 +247,10 @@ public:
     string callSpecific(const string& code) {
         Patient* p = find(code);
         BenhNhan bn;
-        if (p == nullptr || p->status != "Dang cho" || !queues.goiTheoMa(p->id, bn))
+        if (p == nullptr || p->status != "Dang cho")
+            throw invalid_argument("Khong tim thay benh nhan dang cho.");
+        if (roomBusy(p->department)) throw invalid_argument("Phong dang kham benh nhan khac.");
+        if (!queues.goiTheoMa(p->id, bn))
             throw invalid_argument("Khong tim thay benh nhan dang cho.");
         recordCall(bn);
         return code;
@@ -328,7 +352,11 @@ string WebHospital::stateJson() const {
             << jsonEscape(p.department) << "\",\"triageLevel\":" << p.triage
             << ",\"status\":\"" << p.status << "\",\"emergency\":"
             << emergency << ",\"waitMinutes\":";
-        if (p.status == "Dang cho") out << queues.thoiGianChoDuKien(p.id);
+        if (p.status == "Dang cho") {
+            int minutes = queues.thoiGianChoDuKien(p.id);
+            if (roomBusy(p.department)) minutes += PHUT_MOI_LUOT;
+            out << minutes;
+        }
         else out << "null";
         out << '}';
     };
@@ -448,10 +476,13 @@ string base64(const string& value) {
 Request readRequest(Socket client) {
     string raw;
     char buffer[4096];
+    const auto deadline = chrono::steady_clock::now() + chrono::seconds(5);
     size_t headerEnd = string::npos, length = 0;
     bool parsed = false;
     Request request;
     for (;;) {
+        if (chrono::steady_clock::now() >= deadline)
+            throw runtime_error("Yeu cau HTTP qua thoi gian cho.");
         const int n = recv(client, buffer, sizeof(buffer), 0);
         if (n <= 0) throw runtime_error("Yeu cau HTTP bi gian doan.");
         raw.append(buffer, n);
@@ -500,7 +531,8 @@ void sendResponse(Socket client, int status, const string& type, const string& b
     out << "Connection: close\r\n\r\n" << body;
     const string response = out.str();
     size_t sent = 0;
-    while (sent < response.size()) {
+    const auto deadline = chrono::steady_clock::now() + chrono::seconds(5);
+    while (sent < response.size() && chrono::steady_clock::now() < deadline) {
         const int n = send(client, response.data() + sent,
                            static_cast<int>(response.size() - sent), 0);
         if (n <= 0) break;
@@ -634,6 +666,18 @@ int main() {
         for (;;) {
             Socket client = accept(server, nullptr, nullptr);
             if (client == INVALID) continue;
+#ifdef _WIN32
+            DWORD timeout = 5000;
+#else
+            timeval timeout{5, 0};
+#endif
+            if (setsockopt(client, SOL_SOCKET, SO_RCVTIMEO,
+                           reinterpret_cast<const char*>(&timeout), sizeof(timeout)) != 0 ||
+                setsockopt(client, SOL_SOCKET, SO_SNDTIMEO,
+                           reinterpret_cast<const char*>(&timeout), sizeof(timeout)) != 0) {
+                closeSocket(client);
+                throw runtime_error("Khong dat duoc thoi gian cho ket noi.");
+            }
             handle(client, hospital, expectedAuth);
             closeSocket(client);
         }

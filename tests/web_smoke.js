@@ -55,11 +55,25 @@ async function main() {
     assert(response.ok && json.ok, JSON.stringify(json));
     return json;
   }
+  async function rejectedPost(route, fields) {
+    const response = await fetch(base+route, {
+      method:'POST',
+      headers:{Authorization:auth,'Content-Type':'application/x-www-form-urlencoded'},
+      body:new URLSearchParams(fields)
+    });
+    assert.equal(response.status,400);
+    return (await response.json()).message;
+  }
   const register = (name, triage, department='Nhi') =>
     post('/api/register',{name,birthYear:2003,gender:'male',category:'service',
       symptom:'Kiểm tra',department,triage});
   try {
     await start();
+    const stalled = net.connect(port,'127.0.0.1');
+    await new Promise(resolve => stalled.once('connect',resolve));
+    stalled.write('GET /health HTTP/1.1\r\nHost: localhost\r\n');
+    assert.equal((await fetch(base+'/health',{signal:AbortSignal.timeout(8000)})).status,200);
+    stalled.destroy();
     assert.equal((await fetch(base+'/api/state')).status,401);
     assert.equal((await fetch(base+'/')).status,401);
     assert.equal((await fetch(base+'/api/register',{method:'POST',headers:{Authorization:auth,Origin:'https://other.example','Content-Type':'application/x-www-form-urlencoded'},body:'name=x'})).status,400);
@@ -75,6 +89,11 @@ async function main() {
     const waiting=await (await get('/api/waiting-display',false)).text();
     assert(!waiting.includes('TEST_PRIVATE'));
     assert.equal((await post('/api/call-next',{department:'Nhi'})).ticket,c);
+    state=await (await get('/api/state')).json();
+    assert.equal(state.waiting.find(p=>p.ticket===a).waitMinutes,10);
+    assert.equal(state.waiting.find(p=>p.ticket===b).waitMinutes,20);
+    assert.match(await rejectedPost('/api/call-next',{department:'Nhi'}),/Phong dang kham/);
+    assert.match(await rejectedPost('/api/call-specific',{ticket:b}),/Phong dang kham/);
     await post('/api/complete',{ticket:c});
     assert.equal((await post('/api/call-specific',{ticket:b})).ticket,b);
     await post('/api/absent',{ticket:b});
@@ -94,7 +113,10 @@ async function main() {
     assert.deepEqual(state.waiting.map(p=>p.ticket),[e,d]);
     assert.deepEqual(state.patients.slice(0,3).map(p=>p.status),['Da huy','Vang mat','Da kham xong']);
     assert.equal(state.history.length,3);
-    console.log('PASS: quyền truy cập, FIFO/ưu tiên, gọi, chuyển khoa, màn hình chờ, lưu dữ liệu.');
+    assert.equal((await post('/api/call-next',{department:'Nhi'})).ticket,e);
+    const f=(await register('TEST_PRIVATE_F',5,'Mat')).ticket;
+    assert.equal((await post('/api/call-next',{})).ticket,f);
+    console.log('PASS: quyền truy cập, FIFO/ưu tiên, phòng bận, thời gian chờ, timeout, chuyển khoa, lưu dữ liệu.');
   } finally {
     await stop();
     for (const file of fs.readdirSync(directory)) fs.unlinkSync(path.join(directory,file));
