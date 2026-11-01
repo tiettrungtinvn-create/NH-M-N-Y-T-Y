@@ -87,3 +87,11 @@ void HeThongBenhVien::hienThiLichSuGoi() {
         cout << "STT " << bn.soThuTu << " | " << bn.ten << " | " << bn.phongKham << "\n";
     }
 }
+int HeThongBenhVien::lietKeLichSuGoi(BenhNhan danhSach[], int sucChuaMang) const {
+    int n = 0;
+    for (int i = 0; i < lichSuGoi.kichThuoc() && n < sucChuaMang; i++) {
+        lichSuGoi.xemTaiViTri(i, danhSach[n]);
+        n++;
+    }
+    return n;
+}
