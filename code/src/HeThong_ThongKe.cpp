@@ -21,7 +21,7 @@ int HeThongBenhVien::lietKeThuTuCho(BenhNhan danhSach[], int sucChuaMang) const 
     for (int i = 0; i < dem; i++) danhSach[i] = tatCa[i];
     return dem;
 }
-int HeThongBenhVien::thoiGianChoDuKien(int maBN) {
+int HeThongBenhVien::thoiGianChoDuKien(int maBN) const {
     BenhNhan bn, dangXet;
     int viTri;
     bool capCuu;

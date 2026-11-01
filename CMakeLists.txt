@@ -12,7 +12,7 @@ set(HOSPITAL_SOURCES
 )
 
 add_executable(he_thong_benh_vien code/src/main.cpp ${HOSPITAL_SOURCES})
-add_executable(hospital_web code/src/web_server.cpp ${HOSPITAL_SOURCES})
+add_executable(hospital_web code/src/websever.cpp ${HOSPITAL_SOURCES})
 target_include_directories(he_thong_benh_vien PRIVATE code/include)
 target_include_directories(hospital_web PRIVATE code/include)
 if(WIN32)

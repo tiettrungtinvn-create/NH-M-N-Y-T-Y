@@ -2,7 +2,7 @@ FROM gcc:12-bookworm AS build
 WORKDIR /app
 COPY code/ ./code/
 RUN g++ -std=c++17 -O2 -Wall -Wextra -Icode/include \
-    code/src/web_server.cpp code/src/HeThong_TiepNha.cpp \
+    code/src/websever.cpp code/src/HeThong_TiepNha.cpp \
     code/src/HeThong_ChuyenKhoa.cpp code/src/HeThong_GoiSo.cpp \
     code/src/HeThong_ThongKe.cpp -o /app/hospital_web
 
