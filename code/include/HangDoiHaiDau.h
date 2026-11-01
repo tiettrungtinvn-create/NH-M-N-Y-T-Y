@@ -56,37 +56,4 @@ public:
 		return true;
 	}
 
-	bool layDau(BenhNhan& bn) {
-		if (dem == 0) return false;
-		Nut* t = dau;
-		bn = t->du;
-		dau = dau->sau;
-		if (dau == NULL) cuoi = NULL;
-		else dau->truoc = NULL;
-		delete t;
-		dem--;
-		return true;
-	}
-
-	bool layCuoi(BenhNhan& bn) {
-		if (dem == 0) return false;
-		Nut* t = cuoi;
-		bn = t->du;
-		cuoi = cuoi->truoc;
-		if (cuoi == NULL) dau = NULL;
-		else cuoi->sau = NULL;
-		delete t;
-		dem--;
-		return true;
-	}
-
-	bool xemTaiViTri(int i, BenhNhan& bn) const {
-		if (i < 0 || i >= dem) return false;
-		Nut* p = dau;
-		for (int k = 0; k < i; k++) p = p->sau;
-		bn = p->du;
-		return true;
-	}
-};
-
-#endif
+	
