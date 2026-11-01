@@ -11,7 +11,7 @@ HeThongBenhVien::HeThongBenhVien(int sc) {
     sttTuDong = 0;
 }
 
-int HeThongBenhVien::timPhong(string tenPhong) {
+int HeThongBenhVien::timPhong(string tenPhong) const {
     for (int i = 0; i < soPhong; i++)
         if (phong[i].ten == tenPhong) return i;
     return -1;
@@ -26,7 +26,7 @@ int HeThongBenhVien::taoPhong(string tenPhong) {
     return soPhong - 1;
 }
 
-bool HeThongBenhVien::timBenhNhan(int ma, BenhNhan &bn, int &viTriPhong, bool &capCuu) {
+bool HeThongBenhVien::timBenhNhan(int ma, BenhNhan &bn, int &viTriPhong, bool &capCuu) const {
     for (int i = 0; i < soPhong; i++) {
         for (int j = 0; j < phong[i].hangCapCuu.kichThuoc(); j++) {
             phong[i].hangCapCuu.xemTaiViTri(j, bn);
