@@ -7,7 +7,8 @@ Bài tập lớn C++ về **Queue, Priority Queue, Deque**. Chương trình ch�
 Đọc [bảng đối chiếu YC01–YC04](docs/QUY_DINH_YC01_YC04.md) trước khi nộp. Các mục quan trọng:
 
 - **YC01 GitHub:** [quy trình commit và pull request](docs/QUY_TRINH_GITHUB.md). Nhóm cần đưa gói lên repository chính thức bằng tài khoản riêng và bổ sung URL cùng lịch sử thật.
-- **YC02 Jira:** [15 nhiệm vụ cụ thể cho 5 thành viên](docs/KE_HOACH_JIRA.md). Bảng trong gói là kế hoạch; cần tạo issue và cập nhật tiến độ thật trên Jira.
+- **YC02 Jira:** [15 nhiệm vụ cụ thể cho 5 thành viên](docs/KE_HOACH_JIRA.md) đã có issue trên Jira; nhóm cần cập nhật thời hạn, tiến độ và minh chứng thật.
+- **Jira đang theo dõi:** [YC01 NNT-58](https://nguyentienthanh11207.atlassian.net/browse/NNT-58), [YC02 NNT-59](https://nguyentienthanh11207.atlassian.net/browse/NNT-59), [YC03 NNT-60](https://nguyentienthanh11207.atlassian.net/browse/NNT-60), [YC04 NNT-61](https://nguyentienthanh11207.atlassian.net/browse/NNT-61). Mỗi Task cần bổ sung minh chứng trước khi chuyển Done.
 - **YC03 LaTeX:** [nguồn báo cáo](bao_cao.tex) và [hướng dẫn Overleaf](docs/bao_cao/README.md). Điền thông tin nhóm, biên dịch PDF và xác nhận 40–50 trang trước khi nộp.
 - **YC04 C++:** mã ở `include/`, `src/`, [65 ca kiểm thử](tests/test_all.cpp) và [kịch bản demo](docs/KICH_BAN_DEMO.md). Bản phát hành này là ứng dụng console; chưa có giao diện web.
 

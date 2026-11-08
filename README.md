@@ -6,6 +6,8 @@ Thư mục [`console/`](console/README.md) là **gói C++ console độc lập**
 
 Các mốc GitHub/Jira và PDF 40–50 trang cần được kiểm chứng bằng lịch sử nhóm và bản biên dịch cuối, như ghi rõ trong tài liệu đối chiếu.
 
+Jira cho bản console: [YC01 NNT-58](https://nguyentienthanh11207.atlassian.net/browse/NNT-58), [YC02 NNT-59](https://nguyentienthanh11207.atlassian.net/browse/NNT-59), [YC03 NNT-60](https://nguyentienthanh11207.atlassian.net/browse/NNT-60), [YC04 NNT-61](https://nguyentienthanh11207.atlassian.net/browse/NNT-61). [15 Task theo 5 thành viên](console/docs/KE_HOACH_JIRA.md) cũng đã được tạo. Các Task mới đang To Do để nhóm thêm minh chứng và nghiệm thu.
+
 Bài tập lớn C++ về **Queue, Priority Queue và Deque**. Dự án có chương trình dòng lệnh để trình bày cấu trúc dữ liệu và **website công khai** (không cần đăng nhập) để tiếp nhận, điều phối bệnh nhân. Đây là bản học tập và trình diễn; không dùng để lưu hồ sơ bệnh án thật.
 
 ## Chức năng
