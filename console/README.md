@@ -10,6 +10,7 @@ Bài tập lớn C++ về **Queue, Priority Queue, Deque**. Chương trình ch�
 - **YC02 Jira:** [15 nhiệm vụ cụ thể cho 5 thành viên](docs/KE_HOACH_JIRA.md) đã có issue trên Jira; nhóm cần cập nhật thời hạn, tiến độ và minh chứng thật.
 - **Jira đang theo dõi:** [YC01 NNT-58](https://nguyentienthanh11207.atlassian.net/browse/NNT-58), [YC02 NNT-59](https://nguyentienthanh11207.atlassian.net/browse/NNT-59), [YC03 NNT-60](https://nguyentienthanh11207.atlassian.net/browse/NNT-60), [YC04 NNT-61](https://nguyentienthanh11207.atlassian.net/browse/NNT-61). Mỗi Task cần bổ sung minh chứng trước khi chuyển Done.
 - **YC03 LaTeX:** [nguồn báo cáo](bao_cao.tex) và [hướng dẫn Overleaf](docs/bao_cao/README.md). Điền thông tin nhóm, biên dịch PDF và xác nhận 40–50 trang trước khi nộp.
+- **PDF tham khảo đã chỉnh sửa:** [bản 44 trang](docs/BAO_CAO_CHINH_SUA.pdf) đồng bộ mã console, Jira và YC01–YC04. Bản PDF này được dựng lại từ nội dung LaTeX và mã nguồn để sửa bản PDF cũ; nhóm cần biên dịch và đối chiếu `bao_cao.tex` bằng XeLaTeX trước khi nộp theo YC03.
 - **YC04 C++:** mã ở `include/`, `src/`, [65 ca kiểm thử](tests/test_all.cpp) và [kịch bản demo](docs/KICH_BAN_DEMO.md). Bản phát hành này là ứng dụng console; chưa có giao diện web.
 
 ## Chạy nhanh
