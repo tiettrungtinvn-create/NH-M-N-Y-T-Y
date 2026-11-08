@@ -1,1 +1,3 @@
 console/run.sh text eol=lf
+*.pdf binary
+*.pptx binary
