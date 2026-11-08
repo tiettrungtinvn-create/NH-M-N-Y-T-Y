@@ -1,0 +1,11 @@
+he_thong_benh_vien
+he_thong_benh_vien_asan
+run_tests
+run_tests_asan
+*.o
+*.exe
+data/benhvien.csv
+data/*.tmp
+data/*.loi
+data/scripted_tmp.csv
+data/test_tmp.csv*

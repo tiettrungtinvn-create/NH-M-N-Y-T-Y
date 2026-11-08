@@ -1,0 +1,237 @@
+\documentclass[12pt,a4paper,oneside]{report}
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Termes}
+\usepackage[vietnamese]{babel}
+\usepackage{geometry}
+\geometry{left=3cm,right=2.2cm,top=2.5cm,bottom=2.5cm}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{amsmath,amssymb,array,longtable,booktabs,multirow}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+\usepackage{enumitem}
+\setlist{itemsep=3pt,topsep=4pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{CareQueue -- Hệ thống xếp hàng khám bệnh}
+\fancyhead[R]{Bài tập lớn CTDL \& GT}
+\fancyfoot[C]{\thepage}
+\setlength{\headheight}{15pt}
+\lstset{language=C++,basicstyle=\ttfamily\scriptsize,keywordstyle=\color{blue!70!black},commentstyle=\color{green!40!black},breaklines=true,breakatwhitespace=true,frame=single,numbers=left,numberstyle=\tiny,tabsize=2,showstringspaces=false,captionpos=b}
+
+\begin{document}
+\begin{titlepage}
+\centering
+{\Large TRƯỜNG ĐẠI HỌC GIAO THÔNG VẬN TẢI\\ PHÂN HIỆU TẠI TP. HỒ CHÍ MINH\par}
+\vspace{1cm}
+{\large HỌC PHẦN: CẤU TRÚC DỮ LIỆU VÀ GIẢI THUẬT\par}
+\vspace{2cm}
+{\Huge\bfseries BÁO CÁO BÀI TẬP LỚN\par}
+\vspace{1cm}
+{\LARGE HỆ THỐNG XẾP HÀNG KHÁM BỆNH\\ VÀ CẤP CỨU BỆNH VIỆN\par}
+\vspace{2cm}
+\begin{flushleft}
+\large Đề tài: ĐT02\\
+Giảng viên hướng dẫn: \textit{Nhóm điền tên thật}\\
+Nhóm/lớp: \textit{Nhóm điền thông tin thật}\\
+Thành viên: Nguyễn Tiến Thành; Hồ Quốc Thịnh; Nguyễn Vinh Quang; Tiết Trung Tín; Sum Le.\\
+Repository: \textit{bổ sung URL repository chính thức}\\
+Jira: \textit{bổ sung URL board dự án}
+\end{flushleft}
+\vfill
+{\large TP. Hồ Chí Minh, năm 2026\par}
+\end{titlepage}
+
+\chapter*{Lời mở đầu}
+\addcontentsline{toc}{chapter}{Lời mở đầu}
+Trong phòng khám, thứ tự tiếp nhận và thứ tự được gọi không phải lúc nào cũng trùng nhau. Người khám thông thường cần được phục vụ theo nguyên tắc đến trước phục vụ trước, trong khi người bệnh có mức khẩn cấp cao phải được đưa lên trước. Nếu chỉ dùng một mảng không có quy tắc ưu tiên, hệ thống dễ gọi sai; nếu chỉ dùng hàng đợi ưu tiên, tính công bằng của người cùng mức khẩn cấp không được diễn giải rõ. Đề tài này tổ chức các luồng bằng ba cấu trúc dữ liệu: Queue, Priority Queue và Deque. Mục tiêu là minh họa cách chọn cấu trúc phù hợp cho một nghiệp vụ cụ thể, sau đó kiểm chứng bằng chương trình C++ console và bộ kiểm thử tự động.
+
+Phạm vi của mô hình là điều phối trong một phiên trực với dữ liệu mô phỏng. Chương trình không chẩn đoán, không thay thế quy trình phân loại cấp cứu chuyên môn và không xử lý thông tin bệnh nhân thực. Mỗi lượt khám được giả định dài mười phút nhằm trình bày phép tính thời gian chờ; số phút dự kiến có thể thay đổi trong thực tế. Các quyết định điều phối và cấu trúc dữ liệu được mô tả ở những chương tiếp theo.
+
+\tableofcontents
+\listoftables
+\clearpage
+
+\chapter{Nghiệp vụ và phân tích bài toán}
+\section{Bối cảnh và mục tiêu}
+Một lượt tiếp nhận cấp một mã bệnh nhân, tên, phòng khám, mức ưu tiên và số thứ tự tự động. Danh sách phòng hình thành khi có bệnh nhân đầu tiên đến phòng đó. Trong mỗi phòng, người bệnh thường chờ theo FIFO; người ưu tiên được sắp theo mức khẩn cấp giảm dần. Trường hợp chuyển sang khoa cấp cứu nhận mức 999, cao hơn mức 1--5 thông thường. Khi gọi theo phòng, chỉ lấy người đứng đầu phù hợp của phòng được chọn. Khi gọi tự động toàn hệ thống, so sánh ứng viên đứng đầu các phòng và lấy người có thứ tự phục vụ cao nhất.
+
+Mục tiêu kiểm chứng được là: không mất phần tử khi hàng đợi quay vòng; người cùng độ ưu tiên được gọi theo số thứ tự đến; bệnh nhân đã gọi rời hàng chờ và xuất hiện trong lịch sử; chuyển khoa không làm đổi tổng số người đang chờ; lưu rồi nạp lại duy trì số thứ tự, hàng chờ và lịch sử.
+
+\section{Tác nhân, đầu vào và đầu ra}
+Tác nhân sử dụng bản console là nhân viên tiếp nhận hoặc người vận hành demo. Đầu vào gồm mã số nguyên dương, tên và phòng không rỗng (tối đa 50 ký tự), mức ưu tiên từ 1 đến 5. Các thao tác sau đó là gọi tự động, gọi theo phòng hoặc mã, chuyển cấp cứu, hủy, tra cứu thời gian, xem bảng và lưu/nạp CSV. Đầu ra là thông báo thành công hoặc lý do thất bại, thứ tự gọi, bảng điện tử và file dữ liệu.
+
+\begin{table}[H]\centering
+\caption{Yêu cầu chức năng và mô-đun hiện thực}
+\begin{tabular}{p{1.5cm}p{6.8cm}p{5cm}}\toprule
+Mã & Chức năng & Mô-đun\\\midrule
+F01 & Tiếp nhận và kiểm tra đầu vào & HeThong\_TiepNha.cpp\\
+F02 & Phân luồng phòng và mức ưu tiên & HeThong\_TiepNha.cpp\\
+F03 & Gọi số tự động / theo phòng / theo mã & HeThong\_GoiSo.cpp\\
+F04 & Chuyển khoa cấp cứu mức 999 & HeThong\_ChuyenKhoa.cpp\\
+F05 & Tính thời gian chờ, hiển thị bảng & HeThong\_ThongKe.cpp\\
+F06 & Lưu/nạp dữ liệu CSV & HeThong\_LuuTru.cpp\\\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Ràng buộc và giả định}
+Chương trình giới hạn 100 phần tử cho một hàng và 10 phòng. Menu khởi tạo hệ thống tối đa 50 bệnh nhân chờ; lớp nghiệp vụ có thể khởi tạo với sức chứa khác nhưng không vượt quá giới hạn mảng. Số thứ tự là tăng dần trong một bộ dữ liệu và tiếp tục sau khi nạp CSV. Lịch sử chỉ giữ 100 lượt gọi gần nhất. Một mã bệnh nhân không được có đồng thời ở hai hàng chờ. Độ ưu tiên đầu vào 1 biểu thị thường; 2--5 là ưu tiên; 999 chỉ do thao tác chuyển khoa cấp cứu tạo ra. Thời gian chờ tính trong phòng của bệnh nhân, không phải tổng thời gian toàn bệnh viện.
+
+\section{Ca sử dụng chính}
+Luồng tiếp nhận: nhập dữ liệu, kiểm tra, phát số, tìm hoặc tạo phòng, thêm vào Queue hay Priority Queue, tăng bộ đếm. Luồng gọi: chọn ứng viên, lấy khỏi hàng, giảm số đang chờ, thêm vào Deque lịch sử, phát thông báo. Luồng chuyển cấp cứu: tìm bệnh nhân, kiểm tra khoa đích, lấy khỏi hàng cũ, cập nhật ưu tiên và phòng, chèn vào hàng ưu tiên của khoa đích. Luồng ước tính: đếm người đứng trước trong cùng phòng rồi nhân mười phút.
+
+\chapter{Thiết kế cấu trúc dữ liệu và giải thuật}
+\section{Mô hình bệnh nhân và toán tử so sánh}
+\texttt{BenhNhan} chứa mã, tên, phòng, độ ưu tiên và số thứ tự. Toán tử \texttt{<} so mức ưu tiên trước; nếu bằng nhau, số thứ tự lớn hơn được xem là nhỏ hơn trong thứ tự phục vụ. Vì vậy một đối tượng được xem là ``lớn'' khi có độ khẩn cấp cao hơn hoặc đến sớm hơn trong cùng mức. \texttt{operator>} dùng đối xứng; \texttt{operator==} so mã. Đây là tiêu chí thống nhất để danh sách ưu tiên và bộ chọn toàn hệ thống không mâu thuẫn.
+
+\begin{equation}
+a \prec b \Leftrightarrow (a.u < b.u) \lor (a.u=b.u \land a.s>b.s),
+\end{equation}
+trong đó $u$ là độ ưu tiên, $s$ là số thứ tự. Nếu $a.s<b.s$ và cùng mức $u$, $a$ đứng trước $b$ theo FIFO.
+
+\section{Queue bằng mảng vòng}
+\texttt{HangDoi} lưu mảng cố định \texttt{a[100]}, vị trí đầu \texttt{dau} và số phần tử \texttt{dem}. Phần tử mới được gán tại $(dau+dem)\bmod 100$. Lấy đầu trả \texttt{a[dau]}, sau đó tăng \texttt{dau} theo modulo 100 và giảm \texttt{dem}. Điều kiện đầy là \texttt{dem==100}. Cách này tái sử dụng các ô ở đầu mảng đã giải phóng mà không phải dịch toàn bộ dữ liệu mỗi lần lấy.
+
+\begin{table}[H]\centering\caption{Diễn tiến hàng đợi vòng dung lượng giả lập 4}
+\begin{tabular}{p{3.2cm}ccc p{4.2cm}}\toprule
+Thao tác & Đầu & Đếm & Đuôi kế tiếp & Thứ tự logic\\\midrule
+Khởi tạo & 0 & 0 & 0 & Rỗng\\
+Thêm A, B, C & 0 & 3 & 3 & A, B, C\\
+Lấy A, B & 2 & 1 & 3 & C\\
+Thêm D, E & 2 & 3 & 1 & C, D, E\\
+Lấy C & 3 & 2 & 1 & D, E\\\bottomrule
+\end{tabular}
+\end{table}
+
+Thao tác thêm, lấy và xem đầu đều $O(1)$. Xóa theo mã phải tìm rồi dịch các phần tử tiếp theo trong thứ tự logic nên $O(n)$. Đây là đánh đổi phù hợp: luồng chính là thêm cuối và lấy đầu, còn hủy/gọi theo mã ít xảy ra hơn.
+
+\section{Priority Queue bằng danh sách liên kết}
+\texttt{HangUuTien} là danh sách liên kết đơn có thứ tự. Khi thêm, duyệt đến vị trí mà bệnh nhân mới có thứ tự phục vụ cao hơn phần tử tiếp theo, rồi nối nút. Đầu danh sách luôn là người cần được gọi đầu tiên. Khi mức ưu tiên bằng nhau, số thứ tự đảm bảo người vào trước vẫn đứng trước. Xem và lấy đầu tốn $O(1)$; thêm và xóa theo mã tốn $O(n)$. Bộ giới hạn 100 phần tử từ chối chèn khi đầy, tránh tăng bộ nhớ không kiểm soát trong bài toán mô phỏng.
+
+\section{Deque và vòng đời bộ nhớ}
+\texttt{HangDoiHaiDau} dùng danh sách liên kết đôi với con trỏ đầu/cuối. Nó lưu lịch sử gọi số: thêm lượt mới ở cuối; khi đủ 100 lượt, lấy lượt cũ nhất ở đầu. Hai thao tác này là $O(1)$. Destructor xóa toàn bộ nút còn lại. Các lớp sở hữu con trỏ không cho sao chép nông để tránh giải phóng hai lần. Kiểm thử D01--D04 bao gồm trường hợp lấy phần tử duy nhất rồi thêm lại.
+
+\section{Điều phối FIFO và ưu tiên}
+Một phòng có hai hàng: hàng ưu tiên và hàng thường. Nếu hàng ưu tiên có phần tử, gọi đầu hàng đó; nếu không, gọi đầu hàng thường. Khi gọi toàn hệ thống, chương trình duyệt các đầu hàng ưu tiên của các phòng để lấy ứng viên lớn nhất theo toán tử so sánh. Chỉ khi không phòng nào có bệnh nhân ưu tiên mới duyệt các đầu hàng thường và chọn STT nhỏ nhất. Cách chọn này không cần chuyển người giữa các phòng. Với tối đa 10 phòng, một lần chọn tốn $O(P)$ với $P\leq10$; việc lấy đầu hàng là $O(1)$.
+
+\section{Chuyển khoa cấp cứu}
+Thao tác chuyển kiểm tra mã tồn tại, khoa đích hợp lệ, phòng còn chỗ và không chuyển lặp một ca đã cấp cứu. Sau đó bệnh nhân được lấy khỏi hàng cũ, đặt phòng mới và mức 999, thêm vào Priority Queue đích. Tổng người đang chờ không thay đổi. STT cũ được giữ nguyên để các ca cấp cứu cùng mức vẫn tuân theo thứ tự tiếp nhận. Giới hạn cần giải thích: tên khoa có thể do người vận hành truyền vào; menu dùng tên mặc định \texttt{Khoa Cap Cuu}.
+
+\section{Ước tính thời gian chờ}
+Với người ưu tiên, số người đứng trước là vị trí của họ trong hàng ưu tiên. Với người thường, số người đứng trước bằng toàn bộ số người ưu tiên trong phòng cộng vị trí của họ trong hàng thường. Công thức:
+\begin{equation}
+T_{du\ kien}(b)=10\times N_{truoc}(b)\quad \text{phút}.
+\end{equation}
+Nếu không tìm thấy mã đang chờ, hàm trả $-1$. Mô hình này giả định một phòng phục vụ tuần tự, mỗi lượt mất đúng mười phút. Nó không dự báo thời gian khám thực, thời gian bác sĩ nghỉ hoặc người mới đến với mức khẩn cấp cao hơn.
+
+\begin{table}[H]\centering\caption{Ví dụ thứ tự và thời gian chờ trong phòng Nội}
+\begin{tabular}{ccccc}\toprule
+Mã & STT & Mức & Vị trí phục vụ & Chờ dự kiến\\\midrule
+104 & 4 & 5 & 1 & 0 phút\\
+102 & 2 & 3 & 2 & 10 phút\\
+105 & 5 & 3 & 3 & 20 phút\\
+101 & 1 & 1 & 4 & 30 phút\\
+106 & 6 & 1 & 5 & 40 phút\\\bottomrule
+\end{tabular}
+\end{table}
+
+\section{So sánh chi phí các cấu trúc}
+\begin{table}[H]\centering\caption{Độ phức tạp thời gian, $n$ là kích thước hàng}
+\begin{tabular}{p{3.2cm}ccccc}\toprule
+Cấu trúc & Thêm & Xem đầu & Lấy đầu & Xóa mã & Bộ nhớ\\\midrule
+Queue mảng vòng & $O(1)$ & $O(1)$ & $O(1)$ & $O(n)$ & $O(100)$\\
+Priority Queue DSLK & $O(n)$ & $O(1)$ & $O(1)$ & $O(n)$ & $O(n)$\\
+Deque DSLK đôi & $O(1)$ hai đầu & $O(1)$ & $O(1)$ & Không dùng & $O(n)$\\\bottomrule
+\end{tabular}
+\end{table}
+
+\chapter{Cài đặt chương trình C++}
+\section{Tổ chức tệp}
+Nhóm \texttt{include/} khai báo dữ liệu, hàng đợi và lớp nghiệp vụ. Nhóm \texttt{src/} cài đặt theo công việc: tiếp nhận, gọi số, chuyển khoa, thống kê và lưu trữ; \texttt{main.cpp} xử lý tham số, menu và kịch bản demo. \texttt{tests/test\_all.cpp} kiểm tra 65 trường hợp. Cách chia này cho phép từng thành viên đọc một phần nhỏ, biên dịch chung bằng Makefile và chứng minh ranh giới giữa cấu trúc dữ liệu với giao diện console.
+
+\section{Kiểm tra dữ liệu đầu vào}
+Trước khi đổi trạng thái, hệ thống từ chối mã không dương, tên/phòng rỗng, chỉ toàn khoảng trắng, quá 50 ký tự, chứa dấu phẩy hoặc xuống dòng, độ ưu tiên ngoài 1--5, mã trùng và sức chứa đầy. Dấu phẩy bị cấm vì định dạng CSV tự cài đặt chưa có cơ chế escape. Menu nhập lại khi người dùng gõ sai kiểu; EOF được xử lý để lưu và thoát. Một lỗi nghiệp vụ trả \texttt{false} và chuỗi \texttt{loiCuoi()}, giúp người vận hành biết lý do chính xác.
+
+\section{Lưu trữ và nạp CSV}
+File bắt đầu bằng \texttt{CAREQUEUE,1}, tiếp theo là STT đã cấp, các dòng phòng \texttt{R}, người chờ \texttt{Q} và lịch sử \texttt{H}. Khi nạp, chương trình đọc và kiểm tra định dạng, kiểu số, giới hạn, mã/STT trùng trước khi xóa trạng thái cũ. Điều này ngăn file hỏng làm hệ thống rơi vào trạng thái chỉ nạp một phần. Khi lưu, nội dung được ghi vào file tạm rồi đổi tên sang file đích. Trên Windows, nếu không thể đổi tên đè file cũ, chương trình xóa file đích trước khi đổi tên; trong khoảng này có rủi ro mất bản cũ nếu thao tác cuối thất bại. Do vậy bản demo không nên dùng cho dữ liệu bệnh án thực và cần sao lưu file CSV khi chạy nhiều phiên.
+
+\begin{lstlisting}[caption={Ví dụ định dạng lưu trạng thái}]
+CAREQUEUE,1
+STT,3
+R,Noi
+R,Khoa Cap Cuu
+Q,101,Nguyen Van A,Noi,1,1
+Q,103,Le Van C,Khoa Cap Cuu,999,3
+H,102,Tran Thi B,Noi,3,2
+\end{lstlisting}
+
+\section{Lỗi và khả năng phục hồi}
+Khi file khởi động bị hỏng, chương trình sao lưu sang tệp đuôi \texttt{.loi} và bắt đầu với hệ thống rỗng; người vận hành có thể xem bản sao để sửa thủ công. Khi nạp lại trong phiên, lỗi được báo và dữ liệu đang chạy được giữ nguyên. Mất quyền ghi hoặc đầy đĩa ném ngoại lệ; tầng menu bắt lỗi và hiển thị thông báo. Giới hạn: không khóa file, do đó không chạy hai tiến trình cùng sửa một CSV.
+
+\chapter{Đánh giá độ phức tạp và kiểm thử}
+\section{Phương pháp kiểm thử}
+Bộ kiểm thử tự động ở \texttt{tests/test\_all.cpp} dùng macro \texttt{CHECK} để đếm ca đạt. Mỗi nhóm ca tạo hệ thống riêng để trạng thái không rò từ ca trước. Nhóm Queue kiểm tra FIFO, đầy, quay vòng và xóa giữa; Priority Queue kiểm tra ưu tiên và FIFO cùng mức; Deque kiểm tra thêm/lấy hai đầu và con trỏ sau khi rỗng. Nhóm nghiệp vụ kiểm tra tiếp nhận, gọi, hủy, chuyển khoa, bảng và thời gian. Nhóm file kiểm tra roundtrip và file sai định dạng.
+
+\begin{longtable}{p{2.4cm}p{1.8cm}p{8.3cm}}
+\caption{Phạm vi bộ kiểm thử tự động}\\\toprule
+Nhóm & Số ca & Tình huống chính\\\midrule\endfirsthead
+\toprule Nhóm & Số ca & Tình huống chính\\\midrule\endhead
+Queue & 7 & Rỗng, FIFO, đầy, quay vòng, xóa giữa, chỉ số biên.\\
+Priority Queue & 6 & Thứ tự ưu tiên, FIFO cùng mức, xóa theo mã, sức chứa.\\
+Deque & 4 & Hai đầu, rỗng rồi thêm lại.\\
+Nghiệp vụ & 28 & Đầu vào hợp lệ/sai, phòng, gọi số, cấp cứu, lịch sử, thời gian.\\
+CSV & 20 & Lưu/nạp, STT, tính ổn định, file hỏng, CRLF, giữ trạng thái.\\\midrule
+Tổng & 65 & Kết quả chạy trên bản được đóng gói: 65/65 đạt.\\\bottomrule
+\end{longtable}
+
+\section{Kịch bản thực nghiệm tái lập}
+Tại thư mục gốc dự án, chạy \texttt{./run.sh test} trên Linux/macOS hoặc biên dịch \texttt{tests/test\_all.cpp} cùng năm tệp \texttt{src/HeThong\_*.cpp} trên Windows. Sau đó chạy \texttt{./run.sh --demo} hoặc \texttt{run.bat --demo}. Kịch bản chi tiết và kết quả mong đợi nằm tại \texttt{docs/KICH\_BAN\_DEMO.md}. Khi chạy lại, cần phân biệt dữ liệu mẫu với dữ liệu đang lưu: \texttt{--demo} dùng file tạm; menu thường dùng \texttt{data/benhvien.csv}.
+
+\section{Các ca lỗi đáng chú ý}
+Thêm bệnh nhân thứ 101 vào một hàng bị từ chối; không ghi đè phần tử cũ. Nhập mã trùng bị từ chối trước khi phát STT. Gọi khi hàng rỗng không giảm số lượng âm. Chuyển cấp cứu cùng bệnh nhân lần hai báo đã ở khoa cấp cứu. Nạp CSV với trùng mã hoặc độ ưu tiên 9 ném lỗi và giữ dữ liệu đang chạy. Bộ kiểm thử cũng kiểm tra file CRLF trên Windows. Các ca này hướng vào bất biến của từng cấu trúc thay vì chỉ kiểm tra màn hình in ra.
+
+\section{Giới hạn kiểm chứng}
+Kết quả 65/65 là chạy chức năng trên môi trường đóng gói; kiểm tra rò rỉ bộ nhớ bằng AddressSanitizer/Valgrind phụ thuộc hệ điều hành và chưa được xác nhận trên mọi máy. Bộ kiểm thử không mô phỏng nhiều nhân viên cùng ghi file. Không có đo hiệu năng với hàng triệu phần tử do sức chứa thiết kế nhỏ. Nhóm cần ghi máy, hệ điều hành, compiler và ảnh kết quả thật vào bản PDF cuối cùng.
+
+\chapter{Kết luận và hướng phát triển}
+Đề tài đã thể hiện ba cấu trúc dữ liệu trong những vai trò khác nhau: Queue vòng bảo đảm FIFO cho khám thường, Priority Queue phục vụ ca khẩn theo mức ưu tiên và thứ tự đến, Deque giữ lịch sử với thao tác hai đầu. Toán tử so sánh trên \texttt{BenhNhan} là quy tắc thống nhất cho điều phối. Chương trình C++ console hỗ trợ tiếp nhận, phân luồng, gọi, chuyển cấp cứu, ước tính chờ, lưu/nạp và có bộ kiểm thử tự động.
+
+Hướng phát triển hợp lý sau khi nghiệm thu bài tập lớn là tách lớp nghiệp vụ khỏi luồng nhập console để xây dựng giao diện web; thay CSV bằng cơ sở dữ liệu có giao dịch và khóa đồng thời; ghi thời gian khám thực tế để ước tính chờ theo từng phòng; phân quyền tài khoản vận hành; và lưu nhật ký thao tác. Những phần này không nằm trong phạm vi bản C++ console hiện tại.
+
+\chapter*{Tài liệu tham khảo}
+\addcontentsline{toc}{chapter}{Tài liệu tham khảo}
+\begin{enumerate}
+\item Cormen, T. H. và cộng sự, \textit{Introduction to Algorithms}, ấn bản 4, MIT Press, 2022. Tham khảo nguyên tắc hàng đợi và phân tích độ phức tạp.
+\item ISO/IEC 14882:2017, \textit{Programming Languages -- C++}. Tham khảo cú pháp C++17 và quy tắc vòng đời đối tượng.
+\item Tài liệu bài giảng học phần Cấu trúc dữ liệu và Giải thuật của lớp: \textit{nhóm bổ sung tên giảng viên, năm và số trang đã sử dụng trước khi nộp}.
+\end{enumerate}
+
+\appendix
+\chapter{Mã nguồn cấu trúc dữ liệu}
+Các listing sau đọc trực tiếp từ mã nguồn trong gói, để báo cáo luôn khớp bản demo. Nếu báo cáo vượt 50 trang, xuất phụ lục mã nguồn thành tệp riêng và giữ các trích đoạn giải thích trong Chương 2.
+\lstinputlisting[caption={BenhNhan.h}]{include/BenhNhan.h}
+\lstinputlisting[caption={HangDoi.h}]{include/HangDoi.h}
+\lstinputlisting[caption={HangUuTien.h}]{include/HangUuTien.h}
+\lstinputlisting[caption={HangDoiHaiDau.h}]{include/HangDoiHaiDau.h}
+\lstinputlisting[caption={HeThongBenhVien.h}]{include/HeThongBenhVien.h}
+
+\chapter{Mã nguồn nghiệp vụ}
+\lstinputlisting[caption={HeThong\_TiepNha.cpp}]{src/HeThong_TiepNha.cpp}
+\lstinputlisting[caption={HeThong\_GoiSo.cpp}]{src/HeThong_GoiSo.cpp}
+\lstinputlisting[caption={HeThong\_ChuyenKhoa.cpp}]{src/HeThong_ChuyenKhoa.cpp}
+\lstinputlisting[caption={HeThong\_ThongKe.cpp}]{src/HeThong_ThongKe.cpp}
+\lstinputlisting[caption={HeThong\_LuuTru.cpp}]{src/HeThong_LuuTru.cpp}
+\lstinputlisting[caption={main.cpp}]{src/main.cpp}
+
+\chapter{Mã kiểm thử}
+\lstinputlisting[caption={test\_all.cpp}]{tests/test_all.cpp}
+
+\end{document}
+
+

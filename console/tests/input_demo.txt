@@ -1,0 +1,58 @@
+abc
+99
+1
+101
+Nguyen Van A
+Noi
+1
+1
+102
+Tran Thi B
+Noi
+3
+1
+103
+Le Van C
+Ngoai
+1
+1
+101
+Trung Ma
+Noi
+1
+1
+104
+   
+Pham Thi D
+Noi
+7
+5
+8
+7
+104
+7
+999
+2
+103
+2
+103
+9
+Khoa Cap Cuu
+3
+4
+Nhi
+11
+
+12
+
+5
+102
+6
+101
+6
+101
+10
+13
+no
+8
+0

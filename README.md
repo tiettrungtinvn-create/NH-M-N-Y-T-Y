@@ -1,5 +1,11 @@
 # CareQueue UTC2 — Hệ thống xếp hàng khám bệnh và cấp cứu
 
+## Bản giao nộp YC01–YC04
+
+Thư mục [`console/`](console/README.md) là **gói C++ console độc lập** dùng để trình bày Queue mảng vòng, Priority Queue, Deque và nghiệm thu theo bốn yêu cầu chung. Trong đó có [bảng đối chiếu YC01–YC04](console/docs/QUY_DINH_YC01_YC04.md), [kế hoạch Jira](console/docs/KE_HOACH_JIRA.md), [báo cáo LaTeX](console/bao_cao.tex), [slide demo](console/docs/SLIDE_DEMO.pptx), mã nguồn và bộ kiểm thử **65/65 ca đạt**. Chạy từ thư mục `console/` bằng `run.bat` hoặc `./run.sh`; phần website và các lệnh CMake/Docker bên dưới vẫn dùng mã trong `code/`.
+
+Các mốc GitHub/Jira và PDF 40–50 trang cần được kiểm chứng bằng lịch sử nhóm và bản biên dịch cuối, như ghi rõ trong tài liệu đối chiếu.
+
 Bài tập lớn C++ về **Queue, Priority Queue và Deque**. Dự án có chương trình dòng lệnh để trình bày cấu trúc dữ liệu và **website công khai** (không cần đăng nhập) để tiếp nhận, điều phối bệnh nhân. Đây là bản học tập và trình diễn; không dùng để lưu hồ sơ bệnh án thật.
 
 ## Chức năng
