@@ -33,7 +33,7 @@ echo Cach nhanh nhat:
 echo   1. Tai w64devkit (file zip, khong can cai dat):
 echo      https://github.com/skeeto/w64devkit/releases
 echo   2. Giai nen, chay w64devkit.exe de mo terminal.
-echo   3. Trong terminal do, go:  cd /duong/dan/toi/CareQueue_CPP   roi   ./run.sh
+echo   3. Trong terminal do, go:  cd /duong/dan/toi/repository   roi   ./run.sh
 echo.
 echo Hoac cai Visual Studio Build Tools va mo "Developer Command Prompt".
 goto end

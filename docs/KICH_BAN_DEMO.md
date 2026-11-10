@@ -5,17 +5,16 @@ Thời lượng gợi ý: **10–12 phút** (2 phút giới thiệu, 6 phút dem
 ## 0. Chuẩn bị
 
 ```sh
-make                      # biên dịch, không được có cảnh báo
-rm -f data/benhvien.csv   # bắt đầu từ hệ thống trống
+./run.sh test              # biên dịch và chạy 65 ca kiểm thử
 ```
 
-Mở sẵn 2 cửa sổ terminal: một để chạy chương trình, một để `cat data/benhvien.csv` chứng minh dữ liệu được lưu.
+Mở sẵn 2 cửa sổ terminal: một để chạy chương trình, một để `cat data/benhvien_demo.csv` chứng minh dữ liệu được lưu. Dùng file demo riêng, không xóa dữ liệu đang sử dụng.
 
-## 1. Demo tự động (1 phút) — `make demo`
+## 1. Demo tự động (1 phút) — `./run.sh --demo`
 
 Chạy kịch bản có sẵn trong `main.cpp`: tiếp nhận 6 bệnh nhân, 4 ca lỗi, bảng điện tử, ước tính chờ, chuyển cấp cứu, **lưu → nạp lại bằng hệ thống mới**, gọi số, hủy, lịch sử. Dùng để cho giảng viên thấy tổng quan trước khi demo tương tác.
 
-## 2. Demo tương tác (6 phút) — `make run`
+## 2. Demo tương tác (6 phút) — `./run.sh --file data/benhvien_demo.csv`
 
 Mỗi bước: **nhập gì → kết quả mong đợi → điểm cần nói**.
 
@@ -34,33 +33,37 @@ Mỗi bước: **nhập gì → kết quả mong đợi → điểm cần nói**
 | TC11 | Tiếp nhận lại vài BN; `4` → `Nhi` (gọi), `4` → `Nhi` lần nữa, `4` → `Mat` | Gọi được; "khong co benh nhan dang cho"; "khong ton tai" | Gọi theo phòng, báo lý do lỗi |
 | TC12 | `5` → mã một BN đang chờ; `6` → mã khác; `6` lần nữa | Gọi thành công; Hủy thành công; Hủy lần 2 THẤT BẠI | Xóa phần tử giữa hàng (`layTheoMa`) |
 | TC13 | `10` Lịch sử gọi | Danh sách các lượt đã gọi theo thứ tự cũ → mới | `HangDoiHaiDau`, giữ 100 lượt gần nhất |
-| TC14 | `0` Thoát; `cat data/benhvien.csv`; chạy lại `make run` | File CSV có `STT`, `R`, `Q`, `H`; mở lại thấy đủ dữ liệu, STT tiếp tục | Lưu bền vững, STT không bị cấp lại |
+| TC14 | `0` Thoát; `cat data/benhvien_demo.csv`; chạy lại `./run.sh --file data/benhvien_demo.csv` | File CSV có `STT`, `R`, `Q`, `H`; mở lại thấy đủ dữ liệu, STT tiếp tục | Lưu bền vững, STT không bị cấp lại |
 | TC15 | `13` → gõ `no`; sau đó `13` → `yes` | Hủy; rồi xóa sạch và lưu | Xác nhận trước thao tác nguy hiểm |
 | TC16 | Gõ `Ctrl+D` ở bất kỳ prompt | "Het du lieu nhap" — lưu và thoát sạch | Xử lý EOF |
 
 ### Demo xử lý lỗi file (1 phút)
 
 ```sh
-echo "xxx" > data/benhvien.csv && ./he_thong_benh_vien
+printf 'xxx\n' > data/file_loi_demo.csv
+./run.sh --file data/file_loi_demo.csv
 ```
-→ Cảnh báo "Khong doc duoc ... bat dau voi he thong rong", **file gốc được sao lưu thành `data/benhvien.csv.loi`** (không bị ghi đè mất).
+→ Cảnh báo "Khong doc duoc ... bat dau voi he thong rong", **file lỗi được sao lưu thành `data/file_loi_demo.csv.loi`** (không bị ghi đè mất).
 
 Trong menu, chức năng `12` với file có dòng sai (ví dụ trùng mã) → báo **số dòng lỗi** và dữ liệu đang chạy được giữ nguyên.
 
 ### Chạy bằng dữ liệu nhập sẵn (dự phòng nếu gõ chậm)
 
 ```sh
-make scripted
+./run.sh --file data/scripted_tmp.csv < tests/input_demo.txt
 ```
 Tệp `tests/input_demo.txt` chứa cả những lần nhập sai để chứng minh chương trình hỏi lại; kết thúc bằng `0`.
 
 ## 3. Kiểm thử tự động & bộ nhớ (2 phút)
 
 ```sh
-make test       # 65/65 đạt
-make asan       # AddressSanitizer + UBSan: không lỗi
-make valgrind   # "All heap blocks were freed -- no leaks are possible", 0 errors
+./run.sh test
+g++ -std=c++17 -g -fsanitize=address,undefined -fno-omit-frame-pointer -Iinclude tests/test_all.cpp src/HeThong_*.cpp -o run_tests_asan
+./run_tests_asan
+valgrind --leak-check=full ./run_tests
 ```
+
+Chỉ báo ASan/Valgrind đạt khi công cụ có trên máy và log thực tế không có lỗi.
 
 | Nhóm | Mã | Số ca | Nội dung chính |
 | --- | --- | --- | --- |
@@ -111,7 +114,7 @@ Ghi ra `.tmp` rồi đổi tên nên file cũ không hỏng. Khi đọc, mọi d
 
 ## 5. Phân công & checklist "ai cũng hiểu code"
 
-Mỗi thành viên nên tự giải thích được ít nhất một khối sau và chạy thử được `make test`:
+Mỗi thành viên nên tự giải thích được ít nhất một khối sau và chạy thử được `./run.sh test`:
 
 | Khối | Câu hỏi tự kiểm tra |
 | --- | --- |

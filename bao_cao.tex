@@ -153,7 +153,7 @@ Deque DSLK đôi & $O(1)$ hai đầu & $O(1)$ & $O(1)$ & Không dùng & $O(n)$\\
 
 \chapter{Cài đặt chương trình C++}
 \section{Tổ chức tệp}
-Nhóm \texttt{include/} khai báo dữ liệu, hàng đợi và lớp nghiệp vụ. Nhóm \texttt{src/} cài đặt theo công việc: tiếp nhận, gọi số, chuyển khoa, thống kê và lưu trữ; \texttt{main.cpp} xử lý tham số, menu và kịch bản demo. \texttt{tests/test\_all.cpp} kiểm tra 65 trường hợp. Cách chia này cho phép từng thành viên đọc một phần nhỏ, biên dịch chung bằng Makefile và chứng minh ranh giới giữa cấu trúc dữ liệu với giao diện console.
+Nhóm \texttt{include/} khai báo dữ liệu, hàng đợi và lớp nghiệp vụ. Nhóm \texttt{src/} cài đặt theo công việc: tiếp nhận, gọi số, chuyển khoa, thống kê và lưu trữ; \texttt{main.cpp} xử lý tham số, menu và kịch bản demo. \texttt{tests/test\_all.cpp} kiểm tra 65 trường hợp. Cách chia này cho phép từng thành viên đọc một phần nhỏ, biên dịch chung bằng \texttt{run.sh}/\texttt{run.bat} và chứng minh ranh giới giữa cấu trúc dữ liệu với giao diện console.
 
 \section{Kiểm tra dữ liệu đầu vào}
 Trước khi đổi trạng thái, hệ thống từ chối mã không dương, tên/phòng rỗng, chỉ toàn khoảng trắng, quá 50 ký tự, chứa dấu phẩy hoặc xuống dòng, độ ưu tiên ngoài 1--5, mã trùng và sức chứa đầy. Dấu phẩy bị cấm vì định dạng CSV tự cài đặt chưa có cơ chế escape. Menu nhập lại khi người dùng gõ sai kiểu; EOF được xử lý để lưu và thoát. Một lỗi nghiệp vụ trả \texttt{false} và chuỗi \texttt{loiCuoi()}, giúp người vận hành biết lý do chính xác.

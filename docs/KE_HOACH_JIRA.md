@@ -1,16 +1,16 @@
 # Kế hoạch Jira và WBS CareQueue
 
-**Dự án hiện có:** NNT tại `nguyentienthanh11207.atlassian.net`. Năm Epic đã tồn tại là NNT-1 đến NNT-5. Bảng dưới là 15 Task mới cho **bản console YC01–YC04**; các Task web/SQLite cũ được giữ nguyên. Ngày bắt đầu/hạn chót do nhóm điền theo lịch môn học.
+**Dự án hiện có:** NNT tại `nguyentienthanh11207.atlassian.net`. Năm Epic là NNT-1 đến NNT-5. Bảng dưới là 15 Task cho bản C++ console YC01–YC04; 26 Task web/SQLite cũ NNT-32 đến NNT-57 đã được xóa khỏi Jira. Ngày bắt đầu/hạn chót do nhóm điền theo lịch môn học.
 
 **Trạng thái:** To do → In Progress → Review → Done. Chỉ chuyển Done khi có liên kết commit/PR và kiểm thử hoặc sản phẩm tài liệu tương ứng.
 
-**Task chung của bản console đã tạo ngày 08/11/2026:** [YC01 NNT-58](https://nguyentienthanh11207.atlassian.net/browse/NNT-58), [YC02 NNT-59](https://nguyentienthanh11207.atlassian.net/browse/NNT-59), [YC03 NNT-60](https://nguyentienthanh11207.atlassian.net/browse/NNT-60), [YC04 NNT-61](https://nguyentienthanh11207.atlassian.net/browse/NNT-61). Cả 15 Task WBS bên dưới cũng đã tạo dưới 5 Epic cũ và đang To Do để nhóm bổ sung minh chứng thật.
+**Bốn Task chung:** [YC01 NNT-58](https://nguyentienthanh11207.atlassian.net/browse/NNT-58), [YC02 NNT-59](https://nguyentienthanh11207.atlassian.net/browse/NNT-59), [YC03 NNT-60](https://nguyentienthanh11207.atlassian.net/browse/NNT-60), [YC04 NNT-61](https://nguyentienthanh11207.atlassian.net/browse/NNT-61). Cùng với 15 Task WBS bên dưới, Jira có 19 Task hiện hành. Xem trạng thái trực tiếp trên board; trạng thái Done không tự chứng minh phần việc đã nghiệm thu.
 
 | Epic | Người phụ trách | Mã WBS | Jira | Task cụ thể | Sản phẩm / tiêu chí nghiệm thu | Phụ thuộc |
 | --- | --- | --- | --- | --- | --- | --- |
 | TV1 — Nền tảng | Nguyễn Tiến Thành | 1.1 | [NNT-62](https://nguyentienthanh11207.atlassian.net/browse/NNT-62) | Thiết lập GitHub, README và quy tắc nhánh | Repo chung, README chạy được, mỗi người có quyền truy cập | — |
 | TV1 — Nền tảng | Nguyễn Tiến Thành | 1.2 | [NNT-63](https://nguyentienthanh11207.atlassian.net/browse/NNT-63) | Cài đặt Queue mảng vòng | `them`, `lay`, `xemDau`, `layTheoMa`; Q01–Q07 đạt | 1.1 |
-| TV1 — Nền tảng | Nguyễn Tiến Thành | 1.3 | [NNT-64](https://nguyentienthanh11207.atlassian.net/browse/NNT-64) | Tích hợp khung C++ và Makefile | Build console + test thành công trên máy nhóm | 1.2 |
+| TV1 — Nền tảng | Nguyễn Tiến Thành | 1.3 | [NNT-64](https://nguyentienthanh11207.atlassian.net/browse/NNT-64) | Tích hợp khung C++ và script chạy | Build console + test thành công trên máy nhóm | 1.2 |
 | TV2 — CTDL nâng cao | Hồ Quốc Thịnh | 2.1 | [NNT-65](https://nguyentienthanh11207.atlassian.net/browse/NNT-65) | Cài đặt Priority Queue DSLK | Ưu tiên giảm dần, FIFO cùng mức; P01–P06 đạt | 1.3 |
 | TV2 — CTDL nâng cao | Hồ Quốc Thịnh | 2.2 | [NNT-66](https://nguyentienthanh11207.atlassian.net/browse/NNT-66) | Cài đặt Deque DSLK đôi | Thêm/lấy hai đầu, giải phóng nút; D01–D04 đạt | 1.3 |
 | TV2 — CTDL nâng cao | Hồ Quốc Thịnh | 2.3 | [NNT-67](https://nguyentienthanh11207.atlassian.net/browse/NNT-67) | Nạp chồng toán tử và điều phối | `<`, `>`, `==`; H11, H14, H25 đạt | 2.1, 2.2 |
@@ -46,4 +46,4 @@ Mỗi tuần, từng người ghi: việc đã xong, việc đang làm, vướng
 | TV4 Tiết Trung Tín | 3 | Điền từ Jira | Điền từ Jira | Liên kết issue/PR |
 | TV5 Sum Le | 3 | Điền từ Jira | Điền từ Jira | Liên kết issue/PR |
 
-> Jira NNT đã có board và Task cho phiên bản web/SQLite. Lịch sử đó được giữ nguyên. 19 Task mới của bản console đang To Do; trạng thái Done cũ không tự chứng minh bản console đã được nghiệm thu.
+> Năm Epic và 19 Task của bản C++ console là phạm vi hiện hành. Mỗi Task cần minh chứng commit/PR, kiểm thử hoặc sản phẩm tài liệu; không dùng riêng trạng thái Done để tính tỷ lệ đóng góp.

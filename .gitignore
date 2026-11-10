@@ -9,3 +9,5 @@ data/*.tmp
 data/*.loi
 data/scripted_tmp.csv
 data/test_tmp.csv*
+data/benhvien_demo.csv
+data/file_loi_demo.csv*

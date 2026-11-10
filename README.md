@@ -1,14 +1,14 @@
 # CareQueue UTC2 — Xếp hàng khám bệnh & cấp cứu (C++ Console)
 
-Bài tập lớn C++ về **Queue, Priority Queue, Deque**. Chương trình chạy trên terminal bằng C++17. Gói còn có kế hoạch GitHub/Jira, báo cáo LaTeX và tài liệu demo theo YC01–YC04.
+Bài tập lớn C++ về **Queue, Priority Queue, Deque**. Chương trình chạy trên terminal bằng C++17. Mã nguồn, tài liệu và script chạy nằm ngay ở thư mục gốc repository.
 
 ## Bắt đầu theo yêu cầu bài tập lớn
 
 Đọc [bảng đối chiếu YC01–YC04](docs/QUY_DINH_YC01_YC04.md) trước khi nộp. Các mục quan trọng:
 
-- **YC01 GitHub:** [quy trình commit và pull request](docs/QUY_TRINH_GITHUB.md). Nhóm cần đưa gói lên repository chính thức bằng tài khoản riêng và bổ sung URL cùng lịch sử thật.
-- **YC02 Jira:** [15 nhiệm vụ cụ thể cho 5 thành viên](docs/KE_HOACH_JIRA.md) đã có issue trên Jira; nhóm cần cập nhật thời hạn, tiến độ và minh chứng thật.
-- **Jira đang theo dõi:** [YC01 NNT-58](https://nguyentienthanh11207.atlassian.net/browse/NNT-58), [YC02 NNT-59](https://nguyentienthanh11207.atlassian.net/browse/NNT-59), [YC03 NNT-60](https://nguyentienthanh11207.atlassian.net/browse/NNT-60), [YC04 NNT-61](https://nguyentienthanh11207.atlassian.net/browse/NNT-61). Mỗi Task cần bổ sung minh chứng trước khi chuyển Done.
+- **YC01 GitHub:** [quy trình commit và pull request](docs/QUY_TRINH_GITHUB.md). Mã nguồn đã ở [repository chính thức](https://github.com/tiettrungtinvn-create/NH-M-N-Y-T-Y); nhóm cần đối chiếu lịch sử đóng góp bằng tài khoản riêng.
+- **YC02 Jira:** [15 nhiệm vụ cụ thể cho 5 thành viên](docs/KE_HOACH_JIRA.md) cùng 4 nhiệm vụ chung đã có trên Jira. Nhóm cần đối chiếu trạng thái, thời hạn và minh chứng thực tế.
+- **Jira đang theo dõi:** [YC01 NNT-58](https://nguyentienthanh11207.atlassian.net/browse/NNT-58), [YC02 NNT-59](https://nguyentienthanh11207.atlassian.net/browse/NNT-59), [YC03 NNT-60](https://nguyentienthanh11207.atlassian.net/browse/NNT-60), [YC04 NNT-61](https://nguyentienthanh11207.atlassian.net/browse/NNT-61). Trạng thái Done không thay thế link commit/PR hoặc kết quả nghiệm thu.
 - **YC03 LaTeX:** [nguồn báo cáo](bao_cao.tex) và [hướng dẫn Overleaf](docs/bao_cao/README.md). Điền thông tin nhóm, biên dịch PDF và xác nhận 40–50 trang trước khi nộp.
 - **PDF tham khảo đã chỉnh sửa:** [bản 44 trang](docs/BAO_CAO_CHINH_SUA.pdf) đồng bộ mã console, Jira và YC01–YC04. Bản PDF này được dựng lại từ nội dung LaTeX và mã nguồn để sửa bản PDF cũ; nhóm cần biên dịch và đối chiếu `bao_cao.tex` bằng XeLaTeX trước khi nộp theo YC03.
 - **YC04 C++:** mã ở `include/`, `src/`, [65 ca kiểm thử](tests/test_all.cpp) và [kịch bản demo](docs/KICH_BAN_DEMO.md). Bản phát hành này là ứng dụng console; chưa có giao diện web.
@@ -18,19 +18,22 @@ Bài tập lớn C++ về **Queue, Priority Queue, Deque**. Chương trình ch�
 - Linux/macOS: `./run.sh` (tự biên dịch lần đầu) · `./run.sh --demo` · `./run.sh test`
 - Windows: `run.bat` (cần g++ của MinGW/w64devkit hoặc cl của Visual Studio; nếu chưa có, file sẽ hướng dẫn cài)
 
-## Biên dịch & chạy
+## Biên dịch và chạy
 
 ```sh
-make            # biên dịch he_thong_benh_vien và run_tests
-make run        # menu tương tác (tự nạp/lưu data/benhvien.csv)
-make demo       # kịch bản demo tự động
-make test       # 65 ca kiểm thử tự động
-make asan       # kiểm thử với AddressSanitizer + UBSan
-make valgrind   # kiểm tra rò rỉ bộ nhớ
-make scripted   # chạy menu bằng dữ liệu nhập có sẵn (tests/input_demo.txt)
+./run.sh                       # menu tương tác (Linux/macOS/Git Bash)
+./run.sh --demo                # kịch bản demo tự động
+./run.sh test                  # 65 ca kiểm thử tự động
+./run.sh < tests/input_demo.txt # demo bằng dữ liệu nhập sẵn
 ```
 
-Không có `make`: `g++ -std=c++17 -O2 -Wall -Wextra -Iinclude src/*.cpp -o he_thong_benh_vien`.
+Trên Windows, chạy `run.bat` hoặc `run.bat --demo`. Repository hiện không có Makefile. Nếu biên dịch thủ công trên Linux/macOS:
+
+```sh
+g++ -std=c++17 -O2 -Wall -Wextra -Iinclude src/main.cpp src/HeThong_*.cpp -o he_thong_benh_vien
+g++ -std=c++17 -O2 -Wall -Wextra -Iinclude tests/test_all.cpp src/HeThong_*.cpp -o run_tests
+./run_tests
+```
 
 Tham số: `--file <đường-dẫn.csv>` (đổi file lưu trữ), `--demo`, `--help`.
 Thử với dữ liệu mẫu: `./he_thong_benh_vien --file data/mau_benhvien.csv` (chương trình sẽ ghi đè file này khi có thay đổi — nên chép ra bản khác trước).
@@ -58,7 +61,7 @@ Windows (MinGW): `g++ -std=c++17 -Iinclude src/*.cpp -o he_thong_benh_vien.exe`.
 | `bao_cao.tex` | Nguồn báo cáo LaTeX có phụ lục mã nguồn |
 | `docs/KE_HOACH_JIRA.md` | WBS 5 Epic, 15 Task và tiêu chí nghiệm thu |
 | `docs/QUY_TRINH_GITHUB.md` | Cách làm việc qua commit, nhánh và PR |
-| `docs/SLIDE_DEMO.pptx` | Slide thuyết trình và kịch bản demo (nếu có trong gói) |
+| `docs/SLIDE_DEMO.pptx` | Slide thuyết trình và kịch bản demo |
 
 ## Quy tắc nghiệp vụ
 
@@ -91,5 +94,5 @@ H,<mã>,<tên>,<phòng>,<ưu tiên>,<stt>   <- lịch sử gọi (cũ → mới)
 
 ## Kiểm tra bộ nhớ
 
-`make asan` (AddressSanitizer + UBSan) và `make valgrind`: 0 lỗi, 0 rò rỉ ("All heap blocks were freed").
+Có thể biên dịch bộ test với AddressSanitizer/UBSan hoặc chạy `valgrind ./run_tests` nếu môi trường hỗ trợ. Chỉ kết luận không có lỗi bộ nhớ khi đã chạy và lưu log trên máy kiểm thử thực tế.
 

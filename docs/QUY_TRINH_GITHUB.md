@@ -4,7 +4,7 @@
 
 1. Trưởng nhóm tạo repository chính thức và mời từng thành viên bằng đúng tài khoản GitHub của họ.
 2. Đặt nhánh mặc định `main`, bật yêu cầu pull request trước khi cập nhật `main` nếu quyền repository cho phép.
-3. Đưa nguyên thư mục `CareQueue_CPP` vào repository. Giữ `README.md`, `.gitignore`, `include/`, `src/`, `tests/`, `data/`, `docs/`; không commit file `.exe`, `run_tests`, CSV dữ liệu phát sinh hoặc mật khẩu.
+3. Giữ mã nguồn ở thư mục gốc repository: `README.md`, `.gitignore`, `include/`, `src/`, `tests/`, `data/`, `docs/`; không commit file `.exe`, `run_tests`, CSV dữ liệu phát sinh hoặc mật khẩu.
 4. Trong README ở repository, thêm tên nhóm, liên kết Jira và bản PDF báo cáo khi các tài liệu đã được chốt.
 
 ## Mỗi thành viên làm một nhiệm vụ
@@ -26,7 +26,7 @@ Tạo pull request vào `main`, ghi mã Jira, mô tả cách kiểm tra và kế
 ```text
 Jira: NNT-xx
 Thay đổi: ...
-Kiểm tra: make test (65/65); make demo
+Kiểm tra: ./run.sh test (65/65); ./run.sh --demo
 Rủi ro/giới hạn: ...
 Người kiểm tra: ...
 ```
