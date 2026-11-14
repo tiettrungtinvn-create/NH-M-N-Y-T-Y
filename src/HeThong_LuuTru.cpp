@@ -1,12 +1,4 @@
-// Luu / doc trang thai he thong ra file CSV.
-//
-// Dinh dang (moi dong mot ban ghi, phan tach bang dau phay):
-//   CAREQUEUE,1                      <- dau file + phien ban
-//   STT,<so thu tu da cap>
-//   R,<ten phong>                    <- phong (giu nguyen thu tu)
-//   Q,<ma>,<ten>,<phong>,<uu tien>,<stt>   <- benh nhan dang cho (theo thu tu hang)
-//   H,<ma>,<ten>,<phong>,<uu tien>,<stt>   <- lich su goi (cu -> moi)
-#include <cstdio>
+
 #include <fstream>
 #include <set>
 #include <sstream>
@@ -18,9 +10,9 @@
 namespace {
 
 struct BanGhi {
-    char loai;       // 'Q' hoac 'H'
+    char loai;       
     BenhNhan bn;
-    int dong;        // so dong trong file (de bao loi)
+    int dong;        
 };
 
 [[noreturn]] void loiDong(int dong, const string &msg) {
@@ -52,7 +44,7 @@ int docSo(const string &s, int dong, const char *tenTruong) {
     return (int)v;
 }
 
-}  // namespace
+}  
 
 void HeThongBenhVien::datLai() {
     BenhNhan tam;
@@ -110,7 +102,7 @@ void HeThongBenhVien::luuCSV(const string &duongDan) const {
     }
     error_code ec;
     filesystem::rename(tam, dich, ec);
-    if (ec) {   // Windows: rename khong ghi de duoc -> xoa roi doi ten lai
+    if (ec) {   
         filesystem::remove(dich, ec);
         error_code ec2;
         filesystem::rename(tam, dich, ec2);
@@ -121,8 +113,6 @@ void HeThongBenhVien::luuCSV(const string &duongDan) const {
 void HeThongBenhVien::docCSV(const string &duongDan) {
     ifstream f(duongDan.c_str());
     if (!f) throw runtime_error("Khong mo duoc file de doc: " + duongDan);
-
-    // ---- Giai doan 1: doc + kiem tra toan bo, CHUA dong vao he thong ----
     string line;
     int dong = 0;
     if (!getline(f, line)) throw runtime_error("File rong.");
@@ -176,7 +166,7 @@ void HeThongBenhVien::docCSV(const string &duongDan) {
     if (f.bad()) throw runtime_error("Loi khi doc file.");
     if (stt < 0) throw runtime_error("File thieu dong STT.");
 
-    // Rang buoc nghiep vu
+
     vector<string> tatCaPhong = dsPhong;
     auto themPhong = [&](const string &ten) {
         for (size_t i = 0; i < tatCaPhong.size(); i++) if (tatCaPhong[i] == ten) return;
@@ -204,7 +194,7 @@ void HeThongBenhVien::docCSV(const string &duongDan) {
         if (++demHang[p][k] > MAX_HANG_DOI) loiDong(dsQ[i].dong, "hang doi cua phong bi qua day");
     }
 
-    // ---- Giai doan 2: da hop le -> nap vao he thong ----
+
     datLai();
     sttTuDong = stt;
     for (size_t i = 0; i < tatCaPhong.size(); i++) taoPhong(tatCaPhong[i]);
